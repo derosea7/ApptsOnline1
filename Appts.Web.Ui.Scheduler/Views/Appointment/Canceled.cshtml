@@ -1,0 +1,33 @@
+﻿@{
+  ViewData["Title"] = "Canceled";
+}
+@section MetaContent
+{
+  <link href="../assets/plugins/notification/css/notification.min.css" rel="stylesheet">
+} 
+<div class="container">
+  <div class="row">
+    <dvic class="col-12">
+      <h1>Appointment Canceled</h1>
+      <input type="hidden" id="hfCanceledResult" value="@TempData["ApptCanceled"]" />
+      @if ((string)TempData["ApptCanceled"] == Boolean.FalseString)
+      {
+        <div class="alert alert-danger">
+          There was an error trying to cancel your appointment. Please try again.
+        </div>
+      }
+      @if ((string)TempData["RemindersCanceled"] == Boolean.FalseString)
+      {
+        <div class="alert alert-danger">
+          There was an error trying to cancel your appointment reminders. Please try again.
+        </div>
+      }
+      <a href="@TempData["SpVanityUrl"]">Schedule another time?</a>
+    </dvic>
+  </div>
+</div>
+@section Scripts
+{
+  <script src="../assets/plugins/notification/js/bootstrap-growl.min.js"></script>
+  <script src="~/js/appts_modify_appt.js"></script>
+} 

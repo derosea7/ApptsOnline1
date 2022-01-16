@@ -1,0 +1,20 @@
+﻿@model Appts.Web.Ui.Scheduler.ViewModels.ViewVideoMeetingsVm
+@{ 
+  ViewData["Title"] = "Video Meetings";
+}
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <h1>Video Meetings</h1>
+      @foreach (var vm in Model.VideoMeetings)
+      {
+        <p>
+          <a asp-controller="Video" asp-action="Channel" asp-route-id=@vm.ChannelId>@vm.ChannelName </a>
+        </p>
+        <p>
+          <a asp-controller="V" asp-action="Channel" asp-route-id=@vm.ChannelId>@vm.ChannelName </a>
+        </p>
+      }
+    </div>
+  </div>
+</div>

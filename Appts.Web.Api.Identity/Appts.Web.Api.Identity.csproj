@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <UserSecretsId>07ea42f0-be66-4bae-8b13-f5b0038f13cb</UserSecretsId>
+    <ApplicationInsightsResourceId>/subscriptions/3344e437-7f8c-4932-8eff-76dd4c321b70/resourceGroups/rg-appts-2021/providers/microsoft.insights/components/appts-id-api1</ApplicationInsightsResourceId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.15.0" />
+    <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Appts.Models.Rest\Appts.Models.Rest.csproj" />
+    <ProjectReference Include="..\Appts.Web.ApiClient\Appts.Web.ApiClient.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,53 @@
+﻿
+
+@{
+  ViewData["Title"] = "compound interest";
+}
+
+<div class="container">
+  <div class="row">
+    <div class="col-4">
+      <h3>compound interest table</h3>
+      <div class="card mb-3" style="max-width:450px;">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-6">
+              <div class="form-group">
+                <label for="seed">$ seed</label>
+                <input type="text" id="seed" class="form-control" value="1000" />
+              </div>
+
+            </div>
+            <div class="col-6">
+              <div class="form-group">
+                <label for="roi">% roi</label>
+                <input type="text" id="roi" class="form-control" value="0.02" />
+              </div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-primary btn-block" id="btn-calc">calculate</button>
+        </div>
+      </div>
+    </div>
+    <div class="col-8">
+      <table id="tbli" class="table table-sm table-hover">
+        <thead>
+          <tr>
+            <td>trade #</td>
+            <td>$ start</td>
+            <td>$ gain</td>
+            <td>$ total</td>
+          </tr>
+        </thead>
+        <tbody id="tblcibody">
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+@section Scripts
+{
+
+  <script src="~/js/appts_compound_i.js"></script>
+}

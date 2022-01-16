@@ -1,0 +1,188 @@
+﻿@using Appts.Models.View
+@using Appts.Models.Document
+@model ViewAvailabilityPeriodsViewModel
+@{
+  ViewData["Title"] = "Availability";
+  ViewData["HelpAction"] = "Availability";
+  ViewData["HelpFragment"] = "Index";
+}
+@section MetaContent
+  {
+  @*<link href="~/assets/fonts/material/css/materialdesignicons.min.css" rel="stylesheet" />*@
+}
+<style>
+  #chartdiv1 {
+    width: 100%;
+    height: 400px;
+  }
+
+  .btn_col {
+    margin: 0 !important;
+  }
+
+    .btn_col > i {
+      margin-right: 0 !important;
+    }
+
+  .td-dow {
+    text-align: center;
+    vertical-align: middle !important;
+    width: 100px;
+  }
+
+  .td-time {
+    text-align: center;
+  }
+</style>
+@if (Context.Request.Query["d"] == "t")
+{
+  <input type="hidden" id="qs-deleted-type" value="t" />
+}
+@if (Context.Request.Query["c"] == "t")
+{
+  <input type="hidden" id="qs-added-type" value="t" />
+}
+@if (Context.Request.Query["u"] == "t")
+{
+  <input type="hidden" id="qs-updated-type" value="t" />
+}
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <h3>Availability Periods</h3>
+      <a asp-controller="Availability" asp-action="Add" class="btn btn-primary"><i class="feather-plus"></i> New Availability Period</a>
+      <hr class="hr-cmd-btn-bar" />
+      <input type="hidden" id="hf-periods-json" value="@Model.PeriodDatesJson" />
+      <div id="chartdiv"></div>
+      <div class="card mb-2">
+        <div class="card-body">
+          @if (Model.Periods.Count == 1)
+          {
+            <div id="chartdiv1" style="height: 120px;"></div>
+          }
+          else if (Model.Periods.Count > 1)
+          {
+            int chartHeight = Model.Periods.Count * 67;
+            string chartStyle = $"height: {chartHeight}px;";
+            <div id="chartdiv1" style="@chartStyle"></div>
+          }
+        </div>
+      </div>
+      @if (Model.Periods.Count > 0)
+      {
+        <div class="row">
+          @foreach (var period in Model.Periods)
+          {
+            <div class="col-12 col-sm-6 col-lg-4">
+              <div class="card mb-2" id="@period.Id" style="max-width: 500px;">
+                <div class="card-header">
+                  @period.StartDate.ToLongDateString() - @period.EndDate?.ToLongDateString()
+                </div>
+                <table class="table table-hover">
+                  <thead style="text-align:center;">
+                    <tr>
+                      <th>Day</th>
+                      <th class="text-primary"><i class="feather-play"></i> Start</th>
+                      <th class="text-danger"><i class="feather-square"></i> End</th>
+                    </tr>
+                  </thead>
+                  @foreach (Availability availability in period.Availability)
+                  {
+                    @if (availability.Blocks != null)
+                    {
+                      int rowSpan = 0;
+                      bool isFirst = true;
+                      @foreach (AvailabilityBlock block in availability.Blocks)
+                      {
+                        rowSpan = availability.Blocks.Count;
+                        <tr>
+                          @if (isFirst)
+                          {
+                            <td rowspan="@rowSpan" class="td-dow">@availability.DayOfWeek</td>
+                          }
+                          <td class="td-time">@DateTime.Today.Add(block.StartTime).ToShortTimeString()</td>
+                          <td class="td-time">@DateTime.Today.Add(block.EndTime).ToShortTimeString()</td>
+                        </tr>
+                        isFirst = false;
+                      }
+                    }
+                    else
+                    {
+                      <tr>
+                        <td class="td-dow">@availability.DayOfWeek</td>
+                        <td class="td-time text-muted"><i>&ndash;</i></td>
+                        <td class="td-time text-muted"><i>&ndash;</i></td>
+                      </tr>
+                    }
+                  }
+                </table>
+                <div class="card-body">
+                  <a asp-action="Edit" asp-route-id="@period.Id" class="btn btn-info">
+                    <i class="feather-edit"></i> Edit
+                  </a>
+                  <a href="javascript:" class="a-delete-period btn btn-outline-warning">
+                    Delete
+                  </a>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+      else
+      {
+        <div class="row" id="no-content-hint">
+          <div class="col-12 text-center">
+            <i class="feather-calendar" style="font-size:75px;color:#ababab;"></i>
+            <h4>No availability to display</h4>
+            <p>Add availability to one or more days that clients can schedule appointments against.</p>
+            <div>
+              <a asp-controller="Availability" asp-action="Add" class="btn btn-primary mb-2"><i class="feather-plus"></i> New Availability Period</a>
+            </div>
+          </div>
+        </div>
+      }
+
+
+    </div>
+  </div>
+</div>
+
+
+
+<a asp-action="Detail" id="a-uri-delete-period" style="display:none;"></a>
+<div class="modal" id="mdl-confirm-delete" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Are you sure: Delete Availability Period?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Press Delete to confrim.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-info" data-dismiss="modal"><span class="feather icon-arrow-left"></span> Cancel</button>
+        <form method="post" id="frm-confirm-delete">
+          <button type="submit" class="btn btn-primary" id="btn-confirm-delete">
+            <div class="spinner-grow" role="status" style="display:none;">
+            </div>
+            <div class="btn-text"><span class="feather icon-trash"></span> Delete</div>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+@section Scripts
+  {
+  <partial name="_MomentTimeZonePartial" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+  <!-- amchart Resources -->
+  <script src="https://www.amcharts.com/lib/4/core.js"></script>
+  <script src="https://www.amcharts.com/lib/4/charts.js"></script>
+  <script src="https://www.amcharts.com/lib/4/themes/animated.js"></script>
+  <script src="~/js/appts_manage_periods.js"></script>
+}

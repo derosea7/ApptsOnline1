@@ -1,0 +1,62 @@
+﻿@using Appts.Models.View;
+@using Appts.Models.Document;
+@using Appts.Models.Domain;
+@model ScheduleAppointmentViewModel
+@{
+  ViewData["Title"] = "Success - Appt Scheduled!";
+}
+<input type="hidden" id="user-role" value="@Model.UserRole" />
+<input type="hidden" id="sp-vanity-url" value="@Model.SpVanityUrl" />
+<input type="hidden" id="appt-id" value="@Model.Appointment.Id" />
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <h1>Appt Scheduled!</h1>
+      <h3>@Model.Appointment.ToString()</h3>
+      <h4>
+        @if (Model.ClientId != null)
+        { 
+          <img class="avatar" height="32" width="32" style="max-height:32px;max-width:32px;" src="https://cdnappts3.azureedge.net/thumbnail-avatars/@Model.Appointment.ClientId" />
+        }
+         @Model.Appointment.ClientEmail
+      </h4>
+      @if (Model.SchedulerRole == SchedulerRole.AnonymousScheduler || Model.SchedulerRole == SchedulerRole.Client)
+      {
+        <a id="a-schedule-another-same-sp" href="#">Schedule another with same service provider?</a>
+        <br/>
+        @*<p>Schedule another with a different service provider?</p>*@
+      }
+      @if (Model.SchedulerRole == SchedulerRole.AnonymousScheduler)
+      {
+        <p>Create account to save profile</p>
+      }
+      @if (Model.SchedulerRole == SchedulerRole.Client)
+      {
+        <a asp-controller="Client" asp-action="BecomeAServiceProvider">Register as a service provider (10-day free trial)</a>
+      }
+      @if (Model.SchedulerRole == SchedulerRole.Subscriber || Model.SchedulerRole == SchedulerRole.FreeSubscriber)
+      {
+        <a asp-action="@Model.SpVanityUrl" asp-controller="Schedule">Schedule another</a>
+        <br/>
+        <a asp-action="Index" asp-controller="Appointment">View Appointments</a>
+        <br/>
+        <a asp-action="Calendar" asp-controller="Schedule">View Calendar</a>
+      }
+    </div>
+  </div>
+</div>
+@section Scripts
+{
+  <script>
+    var appts_schedule_success = (function () {
+      var p = {}, _p = {};
+      p.init = function () {
+        var spVanityUrl = $('#sp-vanity-url').val();
+        var apptId = $('#appt-id').val();
+        $('#a-schedule-another-same-sp').attr('href', spVanityUrl + '?apptId=' + apptId);
+      };
+      return p;
+    })();
+    $(document).ready(function () { appts_schedule_success.init(); });
+  </script>
+}

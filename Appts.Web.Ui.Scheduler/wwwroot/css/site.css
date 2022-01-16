@@ -1,0 +1,86 @@
+﻿
+/* Carousel */
+.carousel-caption p {
+    font-size: 20px;
+    line-height: 1.4;
+}
+
+/* Make .svg files in the carousel display properly in older browsers */
+.carousel-inner .item img[src$=".svg"] {
+    width: 100%;
+}
+
+/* QR code generator */
+#qrCode {
+    margin: 15px;
+}
+
+/* Hide/rearrange for smaller screens */
+@media screen and (max-width: 767px) {
+    /* Hide captions */
+    .carousel-caption {
+        display: none;
+    }
+}
+
+/*@media(hover: hover) and (pointer: fine) {
+  nav a:hover {
+    background: yellow;
+  }
+}*/
+
+.btn_hover {
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s, opacity 0.5s linear;
+}
+
+tr:hover .btn_hover {
+  visibility: visible;
+  opacity: 1;
+}
+
+.apptTypeRow:hover .btn_hover {
+  visibility: visible;
+  opacity: 1;
+}
+
+.table-tight td {
+  padding: 0.4rem !important;
+}
+
+/*1px solid rgba(0,0,0,.125)*/
+
+
+/*li.list-group-item {
+  border: 1px solid rgba(0,0,0, 0.05) !important;
+  padding: 0.375rem 0.75rem;
+}*/
+
+/*because aspnet valsum default is visibilit hidden*/
+.validation-summary {
+  display: none;
+}
+
+  .validation-summary.validation-summary-errors {
+    display: block;
+  }
+
+.hr-cmd-btn-bar {
+  padding-bottom: 0.3rem;
+}
+.avatar {
+  vertical-align: middle;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+.avatar-big {
+  vertical-align: middle;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+}
+.material-icons.md-48 {
+  font-size: 48px;
+}

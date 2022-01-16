@@ -1,0 +1,53 @@
+﻿@using Appts.Models.View
+@using Appts.Models.Domain
+@model CancelAppointmentViewModel
+
+@{
+  ViewData["Title"] = "Cancel";
+}
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <h1>Cancel Appointment</h1>
+      <hr />
+      <p>Times displayed in @Model.IanaTimeZoneId</p>
+      <table class="table table-hover">
+        <tr>
+          <td>Time</td>
+          <td>@Model.Appointment.FullReadableTime()</td>
+        </tr>
+        <tr>
+          <td>Type</td>
+          <td>@Model.Appointment.AppointmentTypeBreif</td>
+        </tr>
+
+        @*<tr>
+            <td>Service Provider Name</td>
+            <td>...</td>
+          </tr>*@
+
+      </table>
+      @*<partial name="_TimeZoneDisplayPartial" />*@
+      <form method="post" asp-action="Cancel" role="form">
+        <div class="form-group">
+          <textarea class="form-control" asp-for="CancelationNotes" rows="2"
+                    placeholder="Optional notes on cancelation"></textarea>
+        </div>
+        <input type="hidden" name="AppointmentId" value="@Model.Appointment.Id" />
+        <input type="hidden" name="IanaTimeZoneId" value="@Model.IanaTimeZoneId" />
+        
+        @{
+          string readonlyAttribute = "";
+          if (Model.Appointment.Status == EntityStatus.Canceled)
+          {
+            readonlyAttribute = "disabled";
+          }
+        }
+        <button type="submit"
+                class="btn btn-outline-secondary btn-block" >
+          Cancel
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

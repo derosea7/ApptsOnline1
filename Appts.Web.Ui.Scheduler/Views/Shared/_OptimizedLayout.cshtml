@@ -1,0 +1,136 @@
+﻿@inject Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet JavaScriptSnippet
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+@{
+  var isSubscriber = (await AuthorizationService.AuthorizeAsync(User, "PaidSubscriber")).Succeeded;
+}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>@ViewData["Title"] - Appts</title>
+  <!-- basic favicon -->
+  <link rel="icon" href="~/favicon.ico">
+  <link rel="stylesheet" href="~/css/site.css" />
+  @RenderSection("MetaContent", false)
+  @Html.Raw(JavaScriptSnippet.FullScript)
+  <environment include="Development">
+  </environment>
+  <environment exclude="Development">
+  </environment>
+</head>
+<body>
+  @* &#923;upper case labmda, &#955; lower case *@
+  @*<nav class="navbar navbar-expand-lg navbar-dark bg-dark">*@
+  @*<nav class="navbar navbar-expand-md navbar-dark">*@
+  <nav class="navbar navbar-expand-md navbar-light bg-light mb-1">
+    @if (User.Identity.IsAuthenticated)
+    {
+      <a asp-controller="Dashboard" asp-action="Index" class="navbar-brand">
+        <img src="~/assets/images/appts-brand-logo-A-40x37-v3.png" width="30" height="30" class="d-inline-block align-top" alt="">
+        &nbsp;&#955;ppts
+      </a>
+    }
+    else
+    {
+      <a asp-controller="Home" asp-action="Index" class="navbar-brand">
+        <img src="~/assets/images/appts-2-36x40-v2.png" width="30" height="30" class="d-inline-block align-top" alt="">
+        &nbsp;Appts
+      </a>
+    }
+    <button class="navbar-toggler" aria-expanded="false" aria-controls="navbarColor02" aria-label="Toggle navigation" type="button" data-target="#navbarColor02" data-toggle="collapse">
+      @*<span class="navbar-toggler-icon"></span>*@
+      @* mdi mdi-menu   more convential hamburger menu icon *@
+      <span class="mdi mdi-menu"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarColor02">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="nav-link" asp-area="" asp-controller="Home" asp-action="About">About</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Contact">Contact</a>
+        </li>
+        @if (!isSubscriber)
+        {
+          <li class="nav-item">
+            <a class="nav-link" href="#">Pricing</a>
+          </li>
+        }
+      </ul>
+      <ul class="navbar-nav navbar-right" id="navbar-group-service-provider-links">
+        @if (isSubscriber)
+        {
+          <li class="nav-item">
+            <a class="nav-link" asp-controller="Client" asp-action="Index"><i class="mdi mdi-account-settings-variant"></i> Clients</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbar-dd-calendar" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fa fa-calendar"></i>
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbar-dd-calendar">
+              <a asp-controller="Appointment" asp-action="Index" class="dropdown-item"><i class="fa fa-inbox"></i> Appointments</a>
+              <a asp-controller="Availability" asp-action="Index" class="dropdown-item"><i class="fa fa-clock-o"></i> Availablility</a>
+              <a asp-controller="AppointmentType" asp-action="Index" class="dropdown-item">Appointment Types</a>
+            </div>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbar-dd-manage" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fa fa-cog"></i>
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbar-dd-manage">
+              <a asp-controller="ServiceProvider" asp-action="Settings" class="dropdown-item"><i class="fa fa-cogs"></i> Settings</a>
+              <a asp-controller="Calendars" asp-action="Index" class="dropdown-item"><i class="fa fa-bolt" style="color:yellow;"></i> Calendars</a>
+              <a asp-controller="Subscription" asp-action="Index" class="dropdown-item"><i class="fa fa-ticket"></i> Subscription</a>
+            </div>
+          </li>
+        }
+        else if (User.Identity.IsAuthenticated)
+        {
+          <li class="nav-item">
+            <a asp-controller="Schedule" asp-action="Appointment" class="nav-link"><i class="fa fa-fw fa-plus"></i>&nbsp;Appointment</a>
+          </li>
+        }
+        else
+        {
+          //can do something like a guided add, hinting to create free client account and schedule appt
+          <li class="nav-item">
+            <a asp-controller="Schedule" asp-action="Appointment" class="nav-link"><i class="fa fa-fw fa-plus"></i>&nbsp;Appointment</a>
+          </li>
+        }
+      </ul>
+      <partial name="_LoginPartial" />
+    </div>
+  </nav>
+  <partial name="_CookieConsentPartial" />
+  <div class="container body-content" id="content">
+    @RenderBody()
+    <footer style="text-align:center;" class="pt-5">
+      <p>&copy; 2020 - Appts Online</p>
+      <p>Schedule more appointments online with less administration work.</p>
+      <div class="row">
+        <div class="col-6" style="text-align:right;">
+          <p>
+            <a asp-controller="Legal" asp-action="Privacy">Privacy</a>
+          </p>
+        </div>
+        <div class="col-6" style="text-align:left;">
+          <p>
+            <a asp-controller="Legal" asp-action="Terms">Terms</a>
+          </p>
+        </div>
+      </div>
+    </footer>
+  </div>
+  <environment include="Development">
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+  </environment>
+  <environment exclude="Development">
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <script src="~/js/site.min.js" asp-append-version="true"></script>
+  </environment>
+  @RenderSection("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageLicenseUrl>https://appts.online</PackageLicenseUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Appts.Models.Api\Appts.Models.Api.csproj" />
+    <ProjectReference Include="..\Appts.Models.Document\Appts.Models.Document.csproj" />
+    <ProjectReference Include="..\Appts.Models.Domain\Appts.Models.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

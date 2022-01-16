@@ -1,0 +1,67 @@
+﻿@{
+  ViewData["Title"] = "Help Center";
+}
+@section MetaContent
+{
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
+  <link href="../assets/plugins/notification/css/notification.min.css" rel="stylesheet">
+  <style>
+    .wrapper {
+      position: relative;
+      display: inline-block;
+    }
+    .search-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      align-items: center;
+      display: flex;
+    }
+      .search-wrapper input {
+        width: 80px;
+      }
+  </style>
+}
+<div class="container-fluid p-0 mb-2">
+  <div class="row no-gutters">
+    <div class="col-md-12 p-0" style="padding:0px;">
+      <div class="wrapper">
+        <img src="~/images/mountain.jpg" class="img-fluid w-100" style="height:300px;object-fit:cover;" />
+        <div class="search-wrapper justify-content-center">
+          <h1>Help Center</h1>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="container">
+  <div class="row ">
+    <div class="col-md-3 col-sm-12">
+      <div class="card align-items-center">
+        <div class="card-body text-center">
+          <span class="material-icons md-48">3p</span>
+          <h4 class="card-title">Using the chat</h4>
+          <p class="card-text">You can get live <i>(yes, a real human not just a bot)</i> help 9am to 5pm (MST) by using the Message Icon in the lower right of your screen.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-12">
+      <div class="card align-items-center">
+        <div class="card-body text-center">
+          <span class="material-icons md-48">list_alt</span>          
+          <h4 class="card-title">F.A.Q.s</h4>
+          <p class="card-text">Common questions and answers</p>
+          <a asp-controller="Help" asp-action="Faqs" class="card-link">FAQs</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+@section Scripts
+{
+  <script src="../assets/plugins/notification/js/bootstrap-growl.min.js"></script>
+}

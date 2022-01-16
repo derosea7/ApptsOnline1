@@ -1,0 +1,66 @@
+﻿@model Appts.Models.View.ManageClientsViewModel
+@using Appts.Models.Document
+@{
+  ViewData["Title"] = "Client Management";
+  string vanityUrl = $"https://{Model.RequestHost}/schedule/{Model.ServiceProviderVanityUrl}";
+}
+@section MetaContent
+  {
+  <link href="~/assets/fonts/material/css/materialdesignicons.min.css" rel="stylesheet" />
+  <link href="../assets/plugins/notification/css/notification.min.css" rel="stylesheet">
+}
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <h3>Clients of Mine</h3>
+      <hr class="hr-cmd-btn-bar" />
+    </div>
+  </div>
+</div>
+<div class="container">
+  @if (Model.Clients.Count > 0)
+  {
+    <div class="row">
+      <div class="col-md-6 col-sm-12">
+        @foreach (ClientDoc client in Model.Clients)
+        {
+          <div class="card mb-2" id="@client.Id">
+            <div class="card-header">
+              <img class="avatar" height="32" width="32" style="max-height:32px;max-width:32px;" src="https://cdnappts3.azureedge.net/thumbnail-avatars/@client.UserId" />
+              @client.DisplayName
+            </div>
+            <div class="card-body">
+              <div class="card-text">
+                <p class="card-text">@client.Email</p>
+                <p class="card-text">@client.FirstName @client.LastName</p>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+  else
+  {
+    <div class="row">
+      <div class="col-md-12">
+        <div class="row" id="no-content-hint">
+          <div class="col-12 text-center">
+            <i class="mdi mdi-beaker" style="font-size:75px;color:#ababab;"></i>
+            <h4>No clients to display yet</h4>
+            <p>Invite clients to get started</p>
+            <div>
+              <a asp-controller="Client" asp-action="Invite" class="btn btn-primary mb-2"><i class="mdi mdi-plus"></i> Invite a Client!</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+@section Scripts {
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+  <script src="../assets/plugins/notification/js/bootstrap-growl.min.js"></script>
+  <script src="~/js/appts_common.js"></script>
+  <script src="~/js/appts_manage_clients.js"></script>
+}

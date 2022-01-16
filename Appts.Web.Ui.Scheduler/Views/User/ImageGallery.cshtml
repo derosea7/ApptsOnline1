@@ -1,0 +1,47 @@
+﻿@using Appts.Models.View
+@model UserImageGalleryViewModel
+@{
+  ViewData["Title"] = "My Images";
+}
+@section MetaContent  {
+  <style>
+    .gallery-image {
+      /*background-size: 100%;*/
+      /*background-size: 100% 100%;*/
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+      height: 280px;
+      width: 280px;
+    }
+    .gallery-image-container {
+      padding: 8px;
+      background: #fff;
+      border-radius: 2px;
+      height: 300px;
+      width: 300px;
+      margin: 12px;
+      display: inline-block;
+      position: relative;
+      box-shadow: 0 10px 18px rgba(0, 0, 0, 0.2), 0 5px 5px rgba(0, 0, 0, 0.2);
+    }
+  </style>
+}
+@*<h3>My Images</h3>
+<form method="post" enctype="multipart/form-data" asp-action="UploadImage">
+  <p>Upload one file using this form</p>
+  <input type="file" name="image"/>
+
+  <input type="submit" value="Upload" />
+</form>
+<div class="row gallery-content">
+  @foreach (var m in Model.Images)
+  {
+    <div class="gallery-image-container">
+      <div class="gallery-image" style="background-image:url(@m.Url)"></div>
+    </div>
+    <span>@m.Title</span>
+  }
+</div>*@
+
+@*<img src="@m.Url" />*@

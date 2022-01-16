@@ -1,0 +1,99 @@
+﻿@model Appts.Web.Ui.Scheduler.ViewModels.AddClientVm;
+@using Appts.Models.Document
+@{
+  ViewData["Title"] = "Add a Client";
+  ///string vanityUrl = $"https://{Model.RequestHost}/schedule/{Model.ServiceProviderVanityUrl}";
+}
+@section MetaContent
+  {
+  <link href="~/assets/fonts/material/css/materialdesignicons.min.css" rel="stylesheet" />
+  <link href="../assets/plugins/notification/css/notification.min.css" rel="stylesheet">
+}
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <h3>Add a Client</h3>
+      <form method="post" role="form" asp-controller="Client" asp-action="Add">
+        <button type="submit" class="btn btn-primary btn-sm"><i class="icon feather icon-save"></i>&nbsp;Add Client</button>
+        <hr class="hr-cmd-btn-bar">
+        <input type="hidden" id="hf-edit-successful" value="@TempData["UpdateSuccessful"]" />
+        <div class="alert alert-warning" id="alert-warning" style="display:none;">
+        </div>
+        <div asp-validation-summary="All" class="text-danger"></div>
+        <input type="hidden" name="TimeZoneId" value="@Model.TimeZoneId" />
+        <div class="card mb-2">
+          <div class="card-header">
+            Contact information
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label for="tbMobilePhone">Mobile phone</label>
+              <input asp-for="MobilePhone" type="tel"
+                     class="form-control" id="tbMobilePhone"
+                     placeholder="555 555 5555"
+                     style="max-width:300px;">
+              <small id="mobilePhoneHint" class="form-text text-muted">Add "+ country code" for international numbers.</small>
+              <span asp-validation-for="MobilePhone" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+              <label for="inputAddress">Address</label>
+              <input type="text" class="form-control" id="inputAddress" asp-for="Address" placeholder="1234 Main St">
+            </div>
+            <div class="form-group">
+              <label for="inputAddress2">Address 2</label>
+              <input type="text" class="form-control" id="inputAddress2" asp-for="Address2" placeholder="Apartment, studio, or floor">
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <label for="inputCity">City</label>
+                <input type="text" class="form-control" id="inputCity" asp-for="City">
+              </div>
+              <div class="form-group col-md-4">
+                <label for="inputState">State</label>
+                <select id="inputState" class="form-control" asp-for="StateCode" asp-items="@Model.StateOptions">
+                </select>
+              </div>
+              <div class="form-group col-md-2">
+                <label for="inputZip">Zip</label>
+                <input type="text" class="form-control" id="inputZip" asp-for="ZipCode">
+              </div>
+            </div>
+            @*<div class="form-group">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="gridCheck">
+                  <label class="form-check-label" for="gridCheck">
+                    Check me out
+                  </label>
+                </div>
+              </div>*@
+          </div>
+        </div>
+        <div class="card mb-2" id="card-change-timezone" style="">
+          <div class="card-header">
+            Time Zone
+          </div>
+          <div class="card-body">
+            <div class="row no-gutters mb-2">
+              <div class="col-auto mr-1">
+                Availability shown in <i><span id="current-timezone"></span></i>
+              </div>
+              <div class="col-auto">
+                | <span id="current-time"></span>
+              </div>
+            </div>
+            <partial name="_TimeZoneDisplayPartial2" />
+          </div>
+          <span asp-validation-for="TimeZoneId" class="text-danger"></span>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+@section Scripts {
+  <partial name="_MomentTimeZonePartial" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+  <script src="../assets/plugins/notification/js/bootstrap-growl.min.js"></script>
+  <script src="~/js/appts_common.js"></script>
+  <script src="~/js/appts_tz2.js"></script>
+  <script src="~/js/appts_add_client.js"></script>
+}

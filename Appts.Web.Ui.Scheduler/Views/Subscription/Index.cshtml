@@ -1,0 +1,123 @@
+﻿@model Appts.Models.View.ManageSubscriptionViewModel
+@{
+  ViewData["Title"] = "Subscription";
+}
+@section MetaContent
+{
+  <link href="~/assets/plugins/notification/css/notification.min.css" rel="stylesheet" />
+} 
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <h3>Manage Subscription</h3>
+      <hr />
+      @if (Model == null)
+      {
+        <p>Failed to retrieve subscription status.</p>
+        <a asp-action="Index" asp-controller="Help">Visit Help Center</a>
+      }
+      else
+      {
+        @if (Model.Plan == "FreeTrial")
+        {
+          @*<button type="button" id="btn-pay-now" class="btn btn-success">Subscribe Now!</button>*@
+          <div class="alert alert-info">
+            You are currently on the Free Trial.
+            <hr />
+            Upgrade today to lock in your access to state of the art online scheduling software at a low cost. Click Subscribe Now! below.
+          </div>
+          <a href="#" class="btn btn-success btn-lg" id="btn-pay-now">
+            <div class="loading_StripeCheckout" style="display:none;">
+              <span class="spinner-grow spinner-grow-sm" role="status"></span>
+              Great, Stripe will hanlde your payment, just a moment...
+            </div>
+            <div class="btn_text">Subscribe Now!</div>
+          </a>
+          <a href="#" id="btn-cancel-subscription" class="ml-2">Cancel trial</a>
+        }
+        else if (Model.Plan.StartsWith("Terminated"))
+        {
+          <div class="alert alert-info">
+            You're subscription has been canceled.
+            <hr />
+            Reactivate your subscription today to lock in your access to state of the art online scheduling software at a low cost. Click Reactivate Subscription! below.
+          </div>
+          <a href="#" class="btn btn-success btn-lg" id="btn-pay-now">
+            <div class="loading_StripeCheckout" style="display:none;">
+              <span class="spinner-grow spinner-grow-sm" role="status"></span>
+              Great, Stripe will hanlde your payment, just a moment...
+            </div>
+            <div class="btn_text">Reactivate Subscription!</div>
+          </a>
+        }
+        else
+        {
+          <a href="#" id="btn-cancel-subscription" class="ms-2">Cancel subscription</a>
+        }
+        <div class="row mt-1">
+          <div class="col-12 col-md-9 col-lg-6">
+            <div class="card">
+              <div class="card-header">
+                Subscription
+              </div>
+              <ul class="list-group">
+                <li class="list-group-item list-group-flush">Plan: @Model.Plan</li>
+                <li class="list-group-item list-group-flush">Effective Date: @Model.EffectiveDate.ToShortDateString()</li>
+                <li class="list-group-item list-group-flush">Expiration Date: @Model.ExpirationDate.ToShortDateString()</li>
+                <li class="list-group-item list-group-flush">Termination Date: @Model.TerminationDate?.ToShortDateString()</li>
+              </ul>
+            </div>
+          </div>
+          @*<div class="col-6">
+          <div class="card">
+            <div class="card-header">Feedback</div>
+            <div class="card-body">
+              <h5 class="card-title">Hi, How is your experience with Appts Online so far?</h5>
+              <form asp-action="SubmitFeedback">
+                <div class="form-group">
+                  <textarea class="form-control"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit Feedback!</button>
+              </form>
+            </div>
+          </div>
+        </div>*@
+        </div>
+      }
+    </div>
+  </div>
+</div>
+<div class="modal" id="mdl-confirm-cancelation" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Are you sure: Cancel your Subscription?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Press Cancel Subscription to confrim. You will receive email confirmation.</p>
+        <p>Let us know at admin@appts.online if there was anything we could have done to have been more helpful, or you just have an idea for improvment.</p>
+        <p>Thank you</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary f-16" data-dismiss="modal"><span class="mdi mdi-arrow-left f-20"></span> Close</button>
+        <form method="post" asp-action="CancelSubscription">
+          <button type="submit" class="btn btn-danger f-16" id="btn-confirm-cancelation">
+            <div class="spinner-grow" role="status" style="display:none;">
+            </div>
+            <div class="btn-text"><span class="mdi mdi-cancel f-20"></span> Cancel</div>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+@section Scripts
+  {
+  <script src="https://js.stripe.com/v3/"></script>
+  <script src="~/assets/plugins/notification/js/bootstrap-growl.min.js"></script>
+  <script src="~/js/appts_common.js"></script>
+  <script src="~/js/appts_manage_subscription.js"></script>
+}

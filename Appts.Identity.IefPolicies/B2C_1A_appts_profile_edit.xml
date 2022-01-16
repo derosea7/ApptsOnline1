@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<TrustFrameworkPolicy
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns="http://schemas.microsoft.com/online/cpim/schemas/2013/06"
+  PolicySchemaVersion="0.3.0.0"
+  TenantId="scheduler1.onmicrosoft.com"
+  PolicyId="B2C_1A_appts_profile_edit"
+  PublicPolicyUri="http://scheduler1.onmicrosoft.com/B2C_1A_appts_su_only"
+  TenantObjectId="7ed000de-2ad4-4031-9917-4fbc9f12c405" 
+  DeploymentMode="Development" 
+  UserJourneyRecorderEndpoint="urn:journeyrecorder:applicationinsights"  
+  
+  >
+
+  <BasePolicy>
+    <TenantId>scheduler1.onmicrosoft.com</TenantId>
+    <PolicyId>B2C_1A_appts_TrustFrameworkExtensions</PolicyId>
+  </BasePolicy>
+
+  <RelyingParty>
+    <DefaultUserJourney ReferenceId="ProfileEdit" />
+    <UserJourneyBehaviors>
+      <JourneyInsights TelemetryEngine="ApplicationInsights"
+                       InstrumentationKey="3634d83a-2627-421f-98b4-76d55b9d0125"
+                       DeveloperMode="true" ClientEnabled="false" ServerEnabled="true" TelemetryVersion="1.0.0" />
+    </UserJourneyBehaviors>    
+    <TechnicalProfile Id="PolicyProfile">
+      <DisplayName>PolicyProfile</DisplayName>
+      <Protocol Name="OpenIdConnect" />
+      <OutputClaims>
+        <OutputClaim ClaimTypeReferenceId="objectId" PartnerClaimType="sub"/>
+        <OutputClaim ClaimTypeReferenceId="tenantId" AlwaysUseDefaultValue="true" DefaultValue="{Policy:TenantObjectId}" />
+      </OutputClaims>
+      <SubjectNamingInfo ClaimType="sub" />
+    </TechnicalProfile>
+  </RelyingParty>
+</TrustFrameworkPolicy>
+
+

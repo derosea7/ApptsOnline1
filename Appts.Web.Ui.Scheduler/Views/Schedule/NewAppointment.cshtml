@@ -1,0 +1,636 @@
+﻿@using Appts.Models.View;
+@using Appts.Models.Document;
+@using Appts.Models.Domain;
+@model ScheduleAppointmentViewModel
+@{
+  ViewData["Title"] = "Schedule Appt";
+  string whenTabActivationStatus = "";
+  string tabsAbilityStatus = "disabled";
+  string whenTabActivationStatus2 = "";
+}
+@section MetaContent
+  {
+  <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+}
+<style>
+  .avail-card {
+    margin-bottom: 0.25em;
+  }
+  .review-header-link {
+    display: none;
+  }
+  .ui-effects-transfer {
+    border: 2px dotted gray;
+  }
+  .appt-guide {
+    color: #5b76c1 !important
+  }
+  footer {
+    display: none;
+  }
+  .name-tb {
+    max-width: 200px;
+  }
+  .email-tb {
+    max-width: 300px;
+  }
+</style>
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <h5>Schedule an Appointment</h5>
+      <div class="card mb-2">
+        <div class="card-body p-1 ">
+          <div style="font-size:1.5em;">@Model.BusinessDisplayName</div>
+        </div>
+      </div>
+      <div class="alert alert-primary" role="alert" style="display:none;" id="top-level-err-alert"></div>
+      <div id="dev-exception-report" style="display:none;width:100%;"></div>
+      <div asp-validation-summary="All" class="text-danger"></div>
+      <input type="hidden" id="business-timezone-id" value="@Model.BusinessTimeZone" />
+      <input type="hidden" id="business-user-id" value="@Model.ServiceProviderId" />
+      <input type="hidden" id="appt-type-duration" value="@Model.AppointmentDuration" />
+      <input type="hidden" id="hf-appt-type-location-details" value="@Model.LocationDetails" />
+      <input type="hidden" id="is-first-call" value="true" />
+      @if (Model.Reschedule)
+      {
+        <input type="hidden" id="appt-id-to-reschedule" value="@Model.Appointment.AppointmentTypeId" />
+        whenTabActivationStatus = "active";
+        whenTabActivationStatus2 = "active show";
+        tabsAbilityStatus = "";
+      }
+      <!-- drives JS. if true, js will copy pertitent data to review fields -->
+      <input type="hidden" id="is-get-from-invalid-post" value="@Model.IsGetFromInvalidPost.ToString()" />
+      @switch (Model.SchedulerRole)
+      {
+        case SchedulerRole.AnonymousScheduler:
+          <input type="hidden" id="client-timezone-id" />
+          break;
+        case SchedulerRole.Client:
+          <input type="hidden" id="client-timezone-id" />
+          break;
+        case SchedulerRole.Subscriber:
+          <input type="hidden" id="client-timezone-id" value="@Model.BusinessTimeZone" />
+          break;
+        default:
+          <input type="hidden" id="client-timezone-id" />
+          break;
+      }
+      <input type="hidden" id="selected-week-number" />
+      <input type="hidden" id="selected-week-start-date" />
+      <input type="hidden" id="selected-week-end-date" />
+      <input type="hidden" id="scheduler-role" value="@Model.SchedulerRole" />
+      <a id="a-schedule-link" asp-controller="Availability" asp-action="GetAvailabilityForScheduling" style="display:none;"></a>
+      <a id="a-save-appt-link" asp-controller="ScheduleN" asp-action="SaveAppointment" style="display:none;"></a>
+      <a id="a-appt-link" asp-controller="Appointment" asp-action="Index" style="display:none;"></a>
+      <div id="greeting-wrapper" style="min-height:20px;">
+        <h4 id="greeting" class="appt-guide">Hi! Just say...</h4>
+      </div>
+      <div class="tabbed-form-container">
+        <nav class="nav nav-pills flex-column flex-sm-row" id="wizard">
+          @if (!Model.Reschedule)
+          {
+            <a class="flex-sm-fill text-sm-center nav-link active"
+               data-toggle="pill" href="#type" role="tab"
+               id="tab-appt-type">
+              What
+            </a>
+          }
+          <a class="flex-sm-fill text-sm-center nav-link @tabsAbilityStatus @whenTabActivationStatus"
+             data-toggle="pill" href="#datetime" role="tab"
+             id="tab-appt-time">
+            <div class="spinner-grow spinner-grow-sm" role="status" style="display:none;"></div>
+            <i class="feather-clock"></i> When
+          </a>
+          <a class="flex-sm-fill text-sm-center nav-link @tabsAbilityStatus"
+             data-toggle="pill" href="#info" role="tab"
+             id="tab-info">
+            <span id="spn-who-for-anon" style="display:none;">Who, </span>Where, How
+          </a>
+          <a class="flex-sm-fill text-sm-center nav-link @tabsAbilityStatus"
+             data-toggle="pill" href="#review" role="tab"
+             id="tab-review">
+            Review
+          </a>
+        </nav>
+        @{
+          string action = "SaveAppointment";
+          if (Model.Reschedule)
+          {
+            action = "RescheduleAppointment";
+          }
+        }
+        <form asp-controller="Schedule" asp-action="@action" method="post" id="frm">
+          <div class="tab-content mt-3" id="myTabContent">
+            @if (!Model.Reschedule)
+            {
+              <div class="tab-pane fade active show" id="type">
+                <div class="row">
+                  <div class="col-12 col-md-8 offset-md-2 col-lg-6 offset-lg-3">
+                    <div class="d-flex justify-content-center">
+                      <h4 class="appt-guide">What type of appointment?</h4>
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-8 offset-md-2 col-lg-6 offset-lg-3">
+                    <!-- for dev! will need to populate this in the case invalid model state is found
+                    the resulting GET needs to have this data to build the page once again -->
+                    @if (Model.AppointmentTypes2 != null)
+                    {
+                      @foreach (AppointmentType type2 in Model.AppointmentTypes2)
+                      {
+                        <button type="button" class="btn btn-secondary btn-block btn-lg btn_appt_type"
+                                id="@type2.Id"
+                                data-brief-desc="@type2.ToString()"
+                                data-duration="@type2.Duration"
+                                data-location="@type2.Location"
+                                data-location-details="@type2.LocationDetails">
+                          @type2.ToString() <i class="feather-chevron-right float-right"></i>
+                        </button>
+                      }
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+            <div class="tab-pane fade @whenTabActivationStatus2" id="datetime">
+              <!-- will depend if availability exists for this week -->
+              <div id="appt-guide_what-type-wrapper" style="display:none;">
+                <h4 id="appt-guide_what-type" class="appt-guide">When is best for you?</h4>
+              </div>
+              <div class="form-group">
+                <input type="text" id="week-picker" style="display:none;" />
+                <button type="button" class="btn btn-secondary" id="btn-week-picker" value="Select date range">
+                  Availability Dates
+                </button>
+              </div>
+              <partial name="_TimeZoneDisplayPartial" />
+              <div class="d-flex justify-content-center text-center" id="avail-cards" style="display:none;">
+                <div class="row no-gutters"></div>
+              </div>
+            </div>
+            <!-- user forms / inputs -->
+            <div class="tab-pane fade" id="info">
+              @if (!Model.Reschedule)
+              {
+                @if (Model.SchedulerRole == SchedulerRole.AnonymousScheduler)
+                {
+                  <div class="row">
+                    <div class="col-10 col-sm-8 col-md-6">
+                      <div class="form-group">
+                        <label for="tb-anon-email">
+                          Email <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group mb-3">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon1">
+                              <i class="feather-mail"></i>
+                            </span>
+                          </div>
+                          <input asp-for="ClientEmail" type="email" id="tb-anon-email"
+                                 class="form-control email-tb"
+                                 placeholder="kentclark@example.com" />
+                        </div>
+                        <span asp-validation-for="ClientEmail" class="text-danger"></span>
+                      </div>
+                    </div>
+                    <div class="col-6">
+                      <div class="form-group">
+                        <label for="tb-anon-fname">
+                          First Name <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group mb-3">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text">
+                              <i class="feather-user"></i>
+                            </span>
+                          </div>
+                          <input asp-for="ClientFirstName" type="text" id="tb-anon-fname"
+                                 class="form-control name-tb" placeholder="Kent" />
+                        </div>
+                        <span asp-validation-for="ClientFirstName" class="text-danger"></span>
+                      </div>
+  
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-6">
+                      <div class="form-group">
+                        <label for="tb-anon-lname">
+                          Last Name
+                        </label>
+                        <input asp-for="ClientLastName" type="text" id="tb-anon-lname"
+                               class="form-control name-tb" placeholder="Clark" />
+                        <span asp-validation-for="ClientLastName" class="text-danger"></span>
+                      </div>
+                    </div>
+                    <div class="col-6">
+                      <div class="form-group">
+                        <label for="tb-anon-lname">
+                          Mobile phone
+                        </label>
+                        <input asp-for="ClientMobilePhone" type="text" id="tb-anon-mobile"
+                               class="form-control" placeholder="Clark" />
+                        <span asp-validation-for="ClientMobilePhone" class="text-danger"></span>
+                      </div>
+                    </div>
+                  </div>
+                }
+                else if (Model.SchedulerRole == SchedulerRole.Subscriber)
+                {
+                  string showExisting = "";
+                  string showManual = "";
+                  if (Model.ClientList == null)
+                  {
+                    showExisting = "";
+                    showManual = "show";
+                  }
+                  else
+                  {
+                    showExisting = "show";
+                    showManual = "";
+                  }
+                  <div class="row">
+                    <div class="col-12">
+                      <div class="accordion" id="accordClientInfoSource">
+                        <div class="card mb-2">
+                          <div class="card-header" id="headingOne">
+                            <div class="form-group mb-0">
+                              <div class="custom-control custom-switch">
+                                @if (showExisting == "show")
+                                { 
+                                  <input type="checkbox" class="custom-control-input" id="customSwitch1" checked>
+                                }
+                                else
+                                {
+                                  <input type="checkbox" class="custom-control-input" id="customSwitch1" >
+                                }
+                                <label class="custom-control-label" for="customSwitch1"></label> Select existing client
+                              </div>
+                            </div>
+                          </div>
+                          <div id="collapseExistingClient" class="collapse @showExisting"  data-parent="#accordClientInfoSource">
+                            <div class="card-body">
+                              <div class="form-group">
+                                <label for="clientSelectedAsSp">Client</label>
+                                <select id="clientSelectedAsSp" class="custom-select custom-select-lg mb-3">
+                                  <option value="-1" selected>Choose a client...</option>
+                                  @if (Model.ClientList != null)
+                                  {
+                                    @foreach (var client in Model.ClientList)
+                                    {
+                                      <option id="@client.Id" data-email="@client.Email" data-fname="@client.FirstName" data-lname="@client.LastName" data-mobile="@client.MobilePhone">@client.LastName, @client.FirstName (@client.Email)</option>
+                                    }
+                                  }
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="card">
+                          <div class="card-header" id="headingTwo">
+
+                            <div class="form-group mb-2">
+                              <div class="custom-control custom-switch">
+                                @if (showManual == "show")
+                                {
+                                  <input type="checkbox" class="custom-control-input" id="customSwitch2" checked>
+                                }
+                                else
+                                {
+                                  <input type="checkbox" class="custom-control-input" id="customSwitch2">
+                                }
+                                <label class="custom-control-label" for="customSwitch2"></label> Manually enter client info
+                              </div>
+                            </div>
+                          </div>
+                          <div id="collapseManualEntry" class="collapse @showManual" aria-labelledby="headingTwo" data-parent="#accordClientInfoSource">
+                            <div class="card-body">
+
+                              <div class="form-group">
+                                <label for="tb-anon-email">
+                                  Email <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group mb-3">
+                                  <div class="input-group-prepend">
+                                    <span class="input-group-text" id="basic-addon1">
+                                      <i class="feather-mail"></i>
+                                    </span>
+                                  </div>
+                                  <input asp-for="ClientEmail" type="email" id="tb-anon-email"
+                                         class="form-control email-tb"
+                                         placeholder="kentclark@example.com" />
+                                </div>
+                                <span asp-validation-for="ClientEmail" class="text-danger"></span>
+                              </div>
+                              <div class="form-group">
+                                <label for="tb-anon-fname">
+                                  First Name <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group mb-3">
+                                  <div class="input-group-prepend">
+                                    <span class="input-group-text">
+                                      <i class="feather-user"></i>
+                                    </span>
+                                  </div>
+                                  <input asp-for="ClientFirstName" type="text" id="tb-anon-fname"
+                                         class="form-control name-tb" placeholder="Kent" />
+                                </div>
+                                <span asp-validation-for="ClientFirstName" class="text-danger"></span>
+                              </div>
+
+                              <div class="form-group">
+                                <label for="tb-anon-lname">
+                                  Last Name
+                                </label>
+                                <input asp-for="ClientLastName" type="text" id="tb-anon-lname"
+                                       class="form-control name-tb" placeholder="Clark" />
+                                <span asp-validation-for="ClientLastName" class="text-danger"></span>
+                              </div>
+                              <div class="form-group">
+                                <label for="tb-anon-lname">
+                                  Mobile Phone
+                                </label>
+                                <input asp-for="ClientMobilePhone" type="text" id="tb-anon-mobile"
+                                       class="form-control " placeholder="555 555 5555" />
+                                <span asp-validation-for="ClientMobilePhone" class="text-danger"></span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                      </div>
+
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-6">
+                    </div>
+                  </div>
+                }
+                else if (Model.SchedulerRole == SchedulerRole.Client)
+                {
+                  <div class="row">
+                    <div class="col-12">
+                      <div class="card mb-2">
+                        <h5 class="card-header">My info</h5>
+                        <div class="card-body">
+                          <div class="form-row">
+                            <div class="form-group col-md-6">
+                              <label for="client-info-fname">First name</label>
+                              <input type="email" id="client-info-fname" class="form-control" value="@Model.ClientFirstName" disabled>
+                            </div>
+                            <div class="form-group col-md-6">
+                              <label for="client-info-lname">Last name</label>
+                              <input type="tel" class="form-control" id="client-info-lname" value="@Model.ClientLastName" disabled>
+                            </div>
+                          </div>
+                          <div class="form-row">
+                            <div class="form-group col-md-6">
+                              <label for="client-info-email">Email</label>
+                              <input type="email" id="client-info-email" class="form-control" value="@Model.ClientEmail" disabled>
+                            </div>
+                            <div class="form-group col-md-6">
+                              <label for="client-info-mobile">Mobile phone</label>
+                              <input type="tel" class="form-control" id="client-info-modbile" value="@Model.ClientMobilePhone" disabled>
+                              <input type="hidden" class="form-control" asp-for="@Model.ClientMobilePhone"  >
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <label for="inputAddress">Address</label>
+                            <input type="text" class="form-control" id="client-info-address" value="@Model.ClientAddress" disabled>
+                          </div>
+                          <div class="form-group">
+                            <label for="client-info-address-2">Address 2</label>
+                            <input type="text" class="form-control" id="client-info-address-2" value="@Model.ClientAddress2" disabled>
+                          </div>
+                          <div class="form-row">
+                            <div class="form-group col-md-6">
+                              <label for="client-info-city">City</label>
+                              <input type="text" class="form-control" id="client-info-city" value="@Model.ClientCity" disabled>
+                            </div>
+                            <div class="form-group col-md-4">
+                              <label for="client-info-state">State</label>
+                              <input type="text" class="form-control" id="client-info-state" value="@Model.ClientStateCode" disabled />
+                            </div>
+                            <div class="form-group col-md-2">
+                              <label for="client-info-zip">Zip</label>
+                              <input type="text" class="form-control" id="client-info-zip" value="@Model.ClientZipCode" disabled>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                }
+                @* must be provided at time of scheduling, regardless of whether user role. *@
+                <div class="form-group" id="fg-location-details" style="display:none;">
+                  <label for="ta-appt-location-details"><i class="feather-map"></i> Location Details</label>
+                  <textarea asp-for="LocationDetails" class="form-control" id="ta-appt-location-details" rows="2"></textarea>
+                </div>
+                <!-- SP needs to specify which client the appt is for -->
+                <!-- TODO: give SP pick list of emails they've previously scheduled with -->
+                <div class="form-group">
+                  <label for="ta-appt-notes"><i class="feather-message-square"></i> Notes</label>
+                  <textarea class="form-control" id="ta-appt-notes" rows="2"></textarea>
+                </div>
+              }
+
+              @{
+                string btnNotesEnteredAbility = "";
+                if (Model.SchedulerRole == SchedulerRole.AnonymousScheduler)
+                {
+                  btnNotesEnteredAbility = "disabled";
+                }
+              }
+              <button type="button" class="btn btn-success"
+                      id="btn-notes-entered" @btnNotesEnteredAbility>
+                Continue&nbsp;<i class="feather-chevron-right"></i>
+              </button>
+            </div>
+            @* final screen / phase where appt is scheduled *@
+            <div class="tab-pane fade" id="review">
+              @{
+                string startTime = "", endTime = "", notes = "";
+
+                startTime = Model.StartTime == null ? "" : Model.StartTime.ToString("s");
+                endTime = Model.EndTime == null ? "" : Model.EndTime.ToString("s");
+                notes = Model.Notes;
+              }
+              @* inputs required by model binder with POST  *@
+              <input type="hidden" name="ServiceProviderId" value="@Model.ServiceProviderId" />
+              <input type="hidden" name="StartTime" value="@startTime" />
+              <input type="hidden" name="EndTime" value="@endTime" />
+              <input type="hidden" name="Location" value="" />
+              @*<input type="hidden" name="LocationDetails" value="" />*@
+              <input type="hidden" name="Notes" value="@notes" />
+              <input type="hidden" name="AppointmentTypeId" value="@Model.AppointmentTypeId" />
+              <input type="hidden" name="AppointmentTypeBreif" value="@Model.AppointmentTypeBreif" />
+              <input type="hidden" name="BusinessTimeZone" value="@Model.BusinessTimeZone" />
+              <input type="hidden" name="CreatedOn" value="" />
+              <input type="hidden" name="AppointmentIdToReschedule" value="@Model.AppointmentIdToReschedule" />
+              <input type="hidden" asp-for="SpVanityUrl" value="@Model.SpVanityUrl" />
+              @* fields required to enable server side validation, in case where server responds back with invalid state *@
+              <input type="hidden" name="BusinessDisplayName" value="@Model.BusinessDisplayName" />
+              @switch (Model.SchedulerRole)
+              {
+                case SchedulerRole.AnonymousScheduler:
+                  <input type="hidden" name="ClientTimeZone" value="" />
+                  break;
+
+                case SchedulerRole.Client:
+                  <input type="hidden" name="ClientTimeZone" value="" />
+                  break;
+
+                case SchedulerRole.Subscriber:
+                  <input type="hidden" name="ClientTimeZone" value="@Model.BusinessTimeZone" />
+                  break;
+
+                default:
+                  <input type="hidden" name="ClientTimeZone" value="" />
+                  break;
+              }
+              <button type="submit" class="btn btn-success btn-save-appt mb-2 btn-lg">Schedule Appointment!&nbsp;&nbsp;<i class="feather-play"></i></button>
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="card mb-2" id="rev-when">
+                    <div class="card-header">
+                      <div class="d-flex justify-content-between">
+                        <h5 class="mb-0"><i class="feather-clock"></i> When</h5>
+                        <a class="card-text review-header-link" href="#" id="a-pick-another-time">
+                          <span class="feather-edit"></span>&nbsp;Edit
+                        </a>
+                      </div>
+                    </div>
+                    <div class="card-body">
+                      <div class="d-flex justify-content-between">
+                        <h5 class="card-title" id="rev-appt-time"></h5>
+                        <p class="text-muted" id="rev-appt-time-zone"></p>
+                      </div>
+                      <p class="card-text" id="rev-appt-date"></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="card mb-2" id="rev-where">
+                    <div class="card-header">
+                      <h5 class="mb-0"><i class="feather-map"></i> Where</h5>
+                    </div>
+                    <div class="card-body">
+                      <h5 class="card-title" id="rev-appt-location">@Model.Location</h5>
+                      <p class="card-text" id="rev-appt-location-details">
+                        @Model.LocationDetails
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="card mb-2">
+                    <div class="card-header">
+                      <div class="d-flex justify-content-between">
+                        <h5 class="mb-0">Appointment Type</h5>
+                        <a class="card-text review-header-link" href="#" id="a-pick-another-appt-type">
+                          <span class="feather-edit"></span>&nbsp;Edit
+                        </a>
+                      </div>
+                    </div>
+                    <div class="card-body">
+                      <p class="card-text" id="rev-appt-type-desc">
+                        @Model.AppointmentTypeBreif
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="card mb-2">
+                    <div class="card-header">
+                      <div class="d-flex justify-content-between">
+                        <h5 class="mb-0"><i class="feather-message-square"></i> Appointment Notes</h5>
+                        <a class="card-text review-header-link" href="#" id="a-edit-notes">
+                          <span class="feather-edit"></span>&nbsp;Edit
+                        </a>
+                      </div>
+                    </div>
+                    <div class="card-body">
+                      <p class="card-text" id="rev-appt-notes"></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+              </div>
+              <!-- information about the client -->
+              <div class="row">
+                <div class="col-12">
+                  <div class="card mb-2">
+                    <div class="card-header">
+                      <div class="d-flex justify-content-between">
+                        <h5 class="mb-0"><i class="feather-user"></i>&nbsp;&nbsp;Client Info</h5>
+                        <a class="card-text review-header-link" href="#" id="a-edit-client-info">
+                          <span class="feather-edit"></span>&nbsp;Edit
+                        </a>
+                      </div>
+                    </div>
+                    <table class="table table-hover table-tight mb-0">
+                      <tr>
+                        <td><i class="feather icon-mail"></i></td>
+                        <td><div id="lgi-client-email">@Model.ClientEmail</div></td>
+                      </tr>
+                      <tr>
+                        <td>First</td>
+                        <td><div id="lgi-client-fname">@Model.ClientFirstName</div></td>
+                      </tr>
+                      <tr>
+                        <td>Last</td>
+                        <td><div id="lgi-client-lname">@Model.ClientLastName</div></td>
+                      </tr>
+                      <tr>
+                        <td>Mobile phone</td>
+                        <td><div id="lgi-client-mobile">@Model.ClientMobilePhone</div></td>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-success btn-lg btn-save-appt">Schedule Appointment!&nbsp;&nbsp;<i class="feather-play"></i></button>
+            </div>
+          </div>
+        </form>
+
+        <div id="no-availability-for-range" class="d-none">
+          <p>This service provider currently has no availability for the selected range.</p>
+          <p>Contact them directly to let them know you're interested or try again at a later time.</p>
+        </div>
+
+      </div>
+      <div class="schedule-footer" style="height:20px;">
+
+      </div>
+
+
+
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+@section Scripts
+  {
+  @*<script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"
+    integrity="sha256-0YPKAwZP7Mp3ALMRVB2i8GXeEndvCq3eSl/WsAl1Ryk="
+    crossorigin="anonymous"></script>*@
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+  <partial name="_ValidationScriptsPartial.cshtml" />
+  <partial name="_MomentTimeZonePartial" />
+  <script src="~/js/appts_tz2.js"></script>
+  <script src="~/js/appts_schedule_appt.js"></script>
+}

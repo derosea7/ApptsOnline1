@@ -1,0 +1,105 @@
+﻿@using Appts.Models.Document
+@using Appts.Web.Ui.Scheduler.ViewModels
+@model DailyHistoricalStockPeriodVm
+@{
+  ViewData["Title"] = "daily historical stock period docs";
+}
+@section MetaContent
+{
+  <style>
+    #chartdiv {
+      width: 100%;
+      height: 500px;
+    }
+    #chartdiv2 {
+      width: 100%;
+      height: 500px;
+      max-width: 100%;
+    }
+    #chartdiv3 {
+      width: 100%;
+      height: 500px;
+      max-width: 100%;
+    }
+
+    #controls {
+      overflow: hidden;
+      padding-bottom: 3px;
+    }
+
+  </style>
+}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="card text-center m-1">
+        <div class="card-body">
+          <h5 class="card-title">candlesticks</h5>
+          <div id="chartdiv"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row d-none">
+    <div class="col-12">
+      <div class="card text-center m-1">
+        <div class="card-body">
+          <h5 class="card-title">close line</h5>
+          <div id="chartdiv2"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <div class="card text-center m-1">
+        <div class="card-body">
+          <h5 class="card-title">comarison</h5>
+          <input type="hidden" id="hf-stock-compare-json" value="@Model.StockComparePriceDataJson" />
+          <div id="controls"></div>
+          <div id="chartdiv3"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row d-none">
+    <div class="col-12">
+      <h1>daily historical stock period docs</h1>
+      @if (Model.DailyHistoricalDocsJson != null && Model.DailyHistoricalDocsJson.Count > 0)
+      {
+        int count = 1;
+        foreach (var daily in Model.DailyHistoricalDocsJson)
+        {
+          @*<div class="card mb-1" id="@daily">*@
+          <div class="card mb-1" id="dailyidhere">
+            <div class="card-body">
+              @*<h5 class="card-title"><span class="badge badge-dark">@count</span> <a href="javascript:void" class="a-get-docs-for-lookup">@daily</a></h5>*@
+              @*<h6 class="card-subtitle mb-2 text-muted">@lookup.LookupModel.Value</h6>*@
+              <pre><code>@daily</code></pre>
+            </div>
+          </div>
+          <input type="hidden" id="hf-json" value="@daily" />
+          count++;
+        }
+      }
+
+    </div>
+  </div>
+</div>
+
+@section Scripts
+{
+  <script src="//www.amcharts.com/lib/4/core.js"></script>
+  <script src="//www.amcharts.com/lib/4/charts.js"></script>
+  <script src="//www.amcharts.com/lib/4/themes/animated.js"></script>
+  <script src="//www.amcharts.com/lib/4/themes/kelly.js"></script>
+  <script src="//www.amcharts.com/lib/4/themes/dark.js"></script>
+  <script src="//www.amcharts.com/lib/4/plugins/rangeSelector.js"></script>
+  <script src="~/js/appts_view_hist_stk_charts.js"></script>
+  <script>
+    $(document).ready(function () {
+
+    });
+  </script>
+}

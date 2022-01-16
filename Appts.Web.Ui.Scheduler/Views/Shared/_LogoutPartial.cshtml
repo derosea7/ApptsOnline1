@@ -1,0 +1,14 @@
+﻿@using System.Security.Principal
+@using Microsoft.AspNetCore.Authentication.AzureADB2C.UI
+@using Microsoft.Extensions.Options
+@inject IOptionsMonitor<AzureADB2COptions> AzureADB2COptions
+
+@{
+  var options = AzureADB2COptions.Get(AzureADB2CDefaults.AuthenticationScheme);
+}
+@if (User.Identity.IsAuthenticated)
+{
+  <a class="dud-logout" asp-area="AzureADB2C" asp-controller="Account" asp-action="SignOut">
+    <i class="feather icon-log-out"></i>
+</a>
+}

@@ -1,0 +1,561 @@
+﻿@using Appts.Models.Document
+@using Appts.Models.View
+@model Appts.Models.View.AddAvailabilityPeriodViewModel
+@{
+  ViewData["Title"] = "Add Availability";
+  ViewData["HelpAction"] = "Availability";
+  ViewData["HelpFragment"] = "AddPeriod";
+}
+@section MetaContent
+  {
+  <link href="~/assets/plugins/material-datetimepicker/css/bootstrap-material-datetimepicker.css" rel="stylesheet" />
+  <link href="~/assets/fonts/material/css/materialdesignicons.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+  <link href="~/css/from-dattaable.css" rel="stylesheet" />
+}
+<style>
+  #chartdiv {
+    width: 100%;
+    height: 400px;
+  }
+  #amchartdaily {
+    width: 100%;
+    height: 80px;
+  }
+  .centered_cell {
+    vertical-align: middle;
+    text-align: center;
+  }
+</style>
+<style>
+  .appts-custom-input {
+    display: none;
+  }
+  .cl_add_time_block {
+    margin: 0 !important;
+  }
+    .cl_add_time_block > i {
+      margin-right: 0 !important;
+    }
+  .td-btn {
+    text-align: right;
+  }
+  .td-white {
+    vertical-align: middle !important;
+  }
+  .tb_date:hover {
+    cursor: pointer;
+  }
+.pulse-button {
+  border: none;
+  box-shadow: 0 0 0 0 rgba(225, 225, 121, 0.7);
+  -webkit-animation: pulse 1.25s infinite cubic-bezier(0.66, 0, 0, 1);
+  -moz-animation: pulse 1.25s infinite cubic-bezier(0.66, 0, 0, 1);
+  -ms-animation: pulse 1.25s infinite cubic-bezier(0.66, 0, 0, 1);
+  animation: pulse 1.25s infinite cubic-bezier(0.66, 0, 0, 1);
+}
+.pulse-button:hover
+{
+  -webkit-animation: none;-moz-animation: none;-ms-animation: none;animation: none;
+}
+@@-webkit-keyframes pulse {to {box-shadow: 0 0 0 5px rgba(225, 225, 121, 0);}}
+@@-moz-keyframes pulse {to {box-shadow: 0 0 0 5px rgba(225, 225, 121, 0);}}
+@@-ms-keyframes pulse {to {box-shadow: 0 0 0 5px rgba(225, 225, 121, 0);}}
+@@keyframes pulse {to {box-shadow: 0 0 0 5px rgba(225, 225, 121, 0);}}
+</style>
+@if (Model.PeriodDatesJson != null)
+{
+  <input type="hidden" id="hf-period-dates-json" value="@Model.PeriodDatesJson" />
+}
+@{
+  //setup different values for add vs edit
+  var formAction = (Model.IsEditScenario ? "Edit" : "Add");
+  double totalDaysInPeriod = 0;
+  string chartCollapseClass = "";
+  string displayedStartDate = "e.g. 1/1/2019";
+  string displayedEndDate = "e.g. 5/31/2019";
+  if (Model.PeriodStart != null)
+  {
+    //@Model.PeriodStart.ToLongDateString()
+    displayedStartDate = Model.PeriodStart?.ToLongDateString();
+  }
+  if (Model.PeriodEnd != null)
+  {
+    displayedEndDate = Model.PeriodEnd?.ToLongDateString();
+  }
+  if (Model.IsEditScenario)
+  {
+    if (Model.PeriodStart != null)
+    {
+      totalDaysInPeriod = (double)Model.PeriodEnd?.Subtract((DateTime)Model.PeriodStart).TotalDays;
+    }
+    chartCollapseClass = "show";
+  }
+  else
+  {
+
+  }
+}
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <input type="hidden" id="original-form-state" />
+      <h3>Add Availability Period</h3>
+      <form method="post" id="frmPeriod" asp-action="@formAction" onsubmit="return appts_add_availability.submitForm(event)">
+        <input type="hidden" name="Duration" />
+        <input type="hidden" id="hf-has-hint" value="true" />
+        <div id="shadow" style="display:none;">
+          <input type="hidden" name="PeriodId" value="@Model.PeriodId" />
+          <input type="hidden" name="PeriodStart" id="hf-period-start" value="@Model.PeriodStart?.ToString("yyyy-MM-dd")" />
+          <input type="hidden" name="PeriodEnd" id="hf-period-end" value="@Model.PeriodEnd?.ToString("yyyy-MM-dd")" />
+          <input type="hidden" id="hf-availability-days-json" value="@Model.AvailabilityDaysJson" />
+          <input type="hidden" id="hf-period-json" value="@Model.PeriodJson" />
+        </div>
+        <div class="d-flex justify-content-between mb-1">
+          <button type="submit" class="btn btn-primary" id="btn-submit-save-period"><i class="feather-save"></i>&nbsp;Save</button>
+          <p class="mb-1 text-right"><b id="b-total-days-in-period">@totalDaysInPeriod</b> days</p>
+        </div>
+        <hr class="hr-cmd-btn-bar" />
+        <div asp-validation-summary="All" class="validation-summary alert alert-danger alert-dismissible" role="alert">
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4>Oops!</h4>
+        </div>
+        <div class="row">
+          <div class="col-sm-6 col-md-7 col-lg-9">
+            <div class="alert alert-info" id="period-validation-alert" style="display:none;"></div>
+            <div class="alert alert-warning" id="unsaved-changes-alert" style="display:none;">
+              There are unsaved changes.
+            </div>
+          </div>
+        </div>
+        <div class="form-group mb-0">
+          <div class="custom-control custom-switch">
+            <input asp-for="Active" class="custom-control-input"
+                   id="switch-active" type="checkbox">
+            <label class="custom-control-label" for="switch-active">Active</label>
+            <a tabindex="0" role="button" data-toggle="popover"
+               class="popover-dismiss"
+               data-trigger="hover"
+               style="cursor:pointer;"
+               data-content="If true, clients will be able to schedule appointments within this period.">
+              <span class="feather-help-circle text-muted"></span>
+            </a>
+          </div>
+        </div>
+        <div class="card mb-2">
+          <div class="card-header">
+            For how long will this be your weekly schedule?
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-sm-6 order-2 order-lg-1 col-md-5 col-lg-3">
+                <div class="form-group">
+                  <label>Period Start</label> <span class="text-danger">*</span>
+                  <input type="text" id="date-start" class="form-control tb_date" readonly="readonly" value="@displayedStartDate" />
+                  <span asp-validation-for="PeriodStart" class="text-danger"></span>
+                </div>
+              </div>
+              <div class="col-sm-6 order-3 order-lg-2 col-md-5 col-lg-3">
+                <div class="form-group">
+                  <label>Period End</label> <span class="text-danger">*</span>
+                  <input type="text" id="date-end" class="form-control tb_date" readonly="readonly" value="@displayedEndDate" />
+                  <span asp-validation-for="PeriodEnd" class="text-danger"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card  mb-2">
+          <div class="card-header d-flex justify-content-between">
+            <a href="#clps-visualize-availability" data-toggle="collapse" class="align-self-center"><i class="feather-pie-chart"></i> Visualize</a>
+            <button type="button" id="btn-refresh-gantt" class="btn btn-info p-0"><i class="mdi mdi-refresh"></i></button>
+          </div>
+          <div class="collapse @chartCollapseClass" id="clps-visualize-availability">
+            <div class="card-body">
+              <div id="chartdiv"></div>
+            </div>
+          </div>
+        </div>
+        <div class="row justify-content-center" id="cards-row">
+          @{
+            var days = new Dictionary<string, string>()
+            {
+      { "Sunday", "Sun" },
+      { "Monday", "Mon" },
+      { "Tuesday", "Tue" },
+      { "Wednesday", "Wed" },
+      { "Thursday", "Thu" },
+      { "Friday", "Fri" },
+      { "Saturday", "Sat" }
+      };
+            var days2 = new List<ColoredDayOfWeekViewModel>()
+            {
+        new ColoredDayOfWeekViewModel() {
+          DayOfWeek = "Sunday", Dow = "Sun", ColorHex = "#517dbb"
+        },
+        new ColoredDayOfWeekViewModel()
+        {
+          DayOfWeek = "Monday", Dow = "Mon", ColorHex = "#666699"
+        },
+
+        new ColoredDayOfWeekViewModel() {
+          DayOfWeek = "Tuesday", Dow = "Tue", ColorHex = "#993366"
+        },
+        new ColoredDayOfWeekViewModel()
+        {
+          DayOfWeek = "Wednesday", Dow = "Wed", ColorHex = "#999966"
+        },
+
+        new ColoredDayOfWeekViewModel() {
+          DayOfWeek = "Thursday", Dow = "Thu", ColorHex = "#666633"
+        },
+        new ColoredDayOfWeekViewModel()
+        {
+          DayOfWeek = "Friday", Dow = "Fri", ColorHex = "#339966"
+        },
+
+        new ColoredDayOfWeekViewModel() {
+          DayOfWeek = "Saturday", Dow = "Sat", ColorHex = "#5fc169"
+        }
+      };
+          }
+          @foreach (ColoredDayOfWeekViewModel day in days2)
+          {
+            <div class="col-4 col-sm-3 col-md-auto">
+              <div class="card  availability-card mb-1" id="@day.DayOfWeek" style="min-width:100px;">
+                <div class="card-header">
+                  <div class="d-flex justify-content-between mb-1">
+                    @day.Dow
+                    <div class="dow-legend-marker" style="display:none;height:16px;width:16px;background-color:@day.ColorHex;border-radius:2px;"></div>
+                  </div>
+                </div>
+                <div class="card-body empty-hint text-muted">
+                  empty
+                </div>
+                <ul class="list-group list-group-flush"></ul>
+                <div class="card-footer">
+                  <a href="javascript:" class="btn btn-primary  cl_add_time_block">
+                    <i class="feather-plus"></i><span class="add-btn-text"></span>
+                  </a>
+                  <a href="javascript:" class="btn btn-info  copy_day" style="display:none;">
+                    <i class="feather-copy"></i>
+                  </a>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<div class="modal" id="mdl-copy-day" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Copy <span id="dow"></span>'s Availability</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="sl-days-to-copy-to">Destination days</label>
+          <select multiple class="form-control" id="sl-days-to-copy-to"></select>
+          <small class="form-text text-muted">
+            Tip for Windows Users; hold <kbd>Ctrl</kbd> to select multiple.
+          </small>
+        </div>
+        <div class="custom-control custom-switch">
+          <input type="checkbox" class="custom-control-input" id="cb-overwrite-on-copy">
+          <label class="custom-control-label" for="cb-overwrite-on-copy">Overwrite if not empty</label>
+          <small class="form-text text-muted">
+            Turn on to overwrite any existing times on target days.
+          </small>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-info" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="btn-copy-days" data-dismiss="modal" disabled="disabled">
+          Copy
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal" id="mdl-manage-daily-availability" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Manage <span id="dow"></span> Availability</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body p-0">
+        <div class="alert alert-info" id="block-validation-alert" style="display:none;">
+        </div>
+        <div class="row no-gutters">
+          <div class="col-12">
+            <div id="amchartdaily"></div>
+          </div>
+        </div>
+        <input type="hidden" id="hf-original-serialized-modal-blocks" />
+        <table id="tbl-blocks" class="table table-sm table-striped table-tight">
+          <thead>
+            <tr>
+              <td class="centered_cell"><i class="feather-play text-muted"></i> Start</td>
+              <td class="centered_cell"><i class="feather-square text-muted"></i> End</td>
+              <td></td>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- <tr><td>9:31pm</td><td>9:31pm</td><td class="td-btn"><button class="btn btn-secondary p-2" type="button"><span class="feather icon-trash-2"></span></button></td></tr> -->
+          </tbody>
+          <tfoot>
+            <tr>
+              <td>
+                <div class="form-group">
+                  @*<input type="text" id="start-time" class="form-control" placeholder="Start time" />*@
+                  <select class="form-control" id="start-time-list">
+                    <option value="-1">Choose start...</option>
+                    <option value="0">12:00am</option>
+                    <option value="15">12:15am</option>
+                    <option value="30">12:30am</option>
+                    <option value="45">12:45am</option>
+                    <option value="60">1:00am</option>
+                    <option value="75">1:15am</option>
+                    <option value="90">1:30am</option>
+                    <option value="105">1:45am</option>
+                    <option value="120">2:00am</option>
+                    <option value="135">2:15am</option>
+                    <option value="150">2:30am</option>
+                    <option value="165">2:45am</option>
+                    <option value="180">3:00am</option>
+                    <option value="195">3:15am</option>
+                    <option value="210">3:30am</option>
+                    <option value="225">3:45am</option>
+                    <option value="240">4:00am</option>
+                    <option value="255">4:15am</option>
+                    <option value="270">4:30am</option>
+                    <option value="285">4:45am</option>
+                    <option value="300">5:00am</option>
+                    <option value="315">5:15am</option>
+                    <option value="330">5:30am</option>
+                    <option value="345">5:45am</option>
+                    <option value="360">6:00am</option>
+                    <option value="375">6:15am</option>
+                    <option value="390">6:30am</option>
+                    <option value="405">6:45am</option>
+                    <option value="420">7:00am</option>
+                    <option value="435">7:15am</option>
+                    <option value="450">7:30am</option>
+                    <option value="465">7:45am</option>
+                    <option value="480">8:00am</option>
+                    <option value="495">8:15am</option>
+                    <option value="510">8:30am</option>
+                    <option value="525">8:45am</option>
+                    <option value="540">9:00am</option>
+                    <option value="555">9:15am</option>
+                    <option value="570">9:30am</option>
+                    <option value="585">9:45am</option>
+                    <option value="600">10:00am</option>
+                    <option value="615">10:15am</option>
+                    <option value="630">10:30am</option>
+                    <option value="645">10:45am</option>
+                    <option value="660">11:00am</option>
+                    <option value="675">11:15am</option>
+                    <option value="690">11:30am</option>
+                    <option value="705">11:45am</option>
+
+                    <option value="720">12:00pm</option>
+                    <option value="735">12:15pm</option>
+                    <option value="750">12:30pm</option>
+                    <option value="765">12:45pm</option>
+                    <option value="780">1:00pm</option>
+                    <option value="795">1:15pm</option>
+                    <option value="810">1:30pm</option>
+                    <option value="825">1:45pm</option>
+                    <option value="840">2:00pm</option>
+                    <option value="855">2:15pm</option>
+                    <option value="870">2:30pm</option>
+                    <option value="885">2:45pm</option>
+                    <option value="900">3:00pm</option>
+                    <option value="915">3:15pm</option>
+                    <option value="930">3:30pm</option>
+                    <option value="945">3:45pm</option>
+                    <option value="960">4:00pm</option>
+                    <option value="975">4:15pm</option>
+                    <option value="990">4:30pm</option>
+                    <option value="1005">4:45pm</option>
+                    <option value="1020">5:00pm</option>
+                    <option value="1035">5:15pm</option>
+                    <option value="1050">5:30pm</option>
+                    <option value="1065">5:45pm</option>
+                    <option value="1080">6:00pm</option>
+                    <option value="1095">6:15pm</option>
+                    <option value="1110">6:30pm</option>
+                    <option value="1125">6:45pm</option>
+                    <option value="1140">7:00pm</option>
+                    <option value="1155">7:15pm</option>
+                    <option value="1170">7:30pm</option>
+                    <option value="1185">7:45pm</option>
+                    <option value="1200">8:00pm</option>
+                    <option value="1215">8:15pm</option>
+                    <option value="1230">8:30pm</option>
+                    <option value="1245">8:45pm</option>
+                    <option value="1260">9:00pm</option>
+                    <option value="1275">9:15pm</option>
+                    <option value="1290">9:30pm</option>
+                    <option value="1305">9:45pm</option>
+                    <option value="1320">10:00pm</option>
+                    <option value="1335">10:15pm</option>
+                    <option value="1350">10:30pm</option>
+                    <option value="1365">10:45pm</option>
+                    <option value="1380">11:00pm</option>
+                    <option value="1395">11:15pm</option>
+                    <option value="1410">11:30pm</option>
+                    <option value="1425">11:45pm</option>
+                  </select>
+                </div>
+              </td>
+              <td>
+                <div class="form-group">
+                  @*<input type="text" id="end-time" class="form-control" placeholder="End time" />*@
+                  <select class="form-control" id="end-time-list">
+                    <option value="-1">Choose end...</option>
+                    <option value="0">12:00am</option>
+                    <option value="15">12:15am</option>
+                    <option value="30">12:30am</option>
+                    <option value="45">12:45am</option>
+                    <option value="60">1:00am</option>
+                    <option value="75">1:15am</option>
+                    <option value="90">1:30am</option>
+                    <option value="105">1:45am</option>
+                    <option value="120">2:00am</option>
+                    <option value="135">2:15am</option>
+                    <option value="150">2:30am</option>
+                    <option value="165">2:45am</option>
+                    <option value="180">3:00am</option>
+                    <option value="195">3:15am</option>
+                    <option value="210">3:30am</option>
+                    <option value="225">3:45am</option>
+                    <option value="240">4:00am</option>
+                    <option value="255">4:15am</option>
+                    <option value="270">4:30am</option>
+                    <option value="285">4:45am</option>
+                    <option value="300">5:00am</option>
+                    <option value="315">5:15am</option>
+                    <option value="330">5:30am</option>
+                    <option value="345">5:45am</option>
+                    <option value="360">6:00am</option>
+                    <option value="375">6:15am</option>
+                    <option value="390">6:30am</option>
+                    <option value="405">6:45am</option>
+                    <option value="420">7:00am</option>
+                    <option value="435">7:15am</option>
+                    <option value="450">7:30am</option>
+                    <option value="465">7:45am</option>
+                    <option value="480">8:00am</option>
+                    <option value="495">8:15am</option>
+                    <option value="510">8:30am</option>
+                    <option value="525">8:45am</option>
+                    <option value="540">9:00am</option>
+                    <option value="555">9:15am</option>
+                    <option value="570">9:30am</option>
+                    <option value="585">9:45am</option>
+                    <option value="600">10:00am</option>
+                    <option value="615">10:15am</option>
+                    <option value="630">10:30am</option>
+                    <option value="645">10:45am</option>
+                    <option value="660">11:00am</option>
+                    <option value="675">11:15am</option>
+                    <option value="690">11:30am</option>
+                    <option value="705">11:45am</option>
+
+                    <option value="720">12:00pm</option>
+                    <option value="735">12:15pm</option>
+                    <option value="750">12:30pm</option>
+                    <option value="765">12:45pm</option>
+                    <option value="780">1:00pm</option>
+                    <option value="795">1:15pm</option>
+                    <option value="810">1:30pm</option>
+                    <option value="825">1:45pm</option>
+                    <option value="840">2:00pm</option>
+                    <option value="855">2:15pm</option>
+                    <option value="870">2:30pm</option>
+                    <option value="885">2:45pm</option>
+                    <option value="900">3:00pm</option>
+                    <option value="915">3:15pm</option>
+                    <option value="930">3:30pm</option>
+                    <option value="945">3:45pm</option>
+                    <option value="960">4:00pm</option>
+                    <option value="975">4:15pm</option>
+                    <option value="990">4:30pm</option>
+                    <option value="1005">4:45pm</option>
+                    <option value="1020">5:00pm</option>
+                    <option value="1035">5:15pm</option>
+                    <option value="1050">5:30pm</option>
+                    <option value="1065">5:45pm</option>
+                    <option value="1080">6:00pm</option>
+                    <option value="1095">6:15pm</option>
+                    <option value="1110">6:30pm</option>
+                    <option value="1125">6:45pm</option>
+                    <option value="1140">7:00pm</option>
+                    <option value="1155">7:15pm</option>
+                    <option value="1170">7:30pm</option>
+                    <option value="1185">7:45pm</option>
+                    <option value="1200">8:00pm</option>
+                    <option value="1215">8:15pm</option>
+                    <option value="1230">8:30pm</option>
+                    <option value="1245">8:45pm</option>
+                    <option value="1260">9:00pm</option>
+                    <option value="1275">9:15pm</option>
+                    <option value="1290">9:30pm</option>
+                    <option value="1305">9:45pm</option>
+                    <option value="1320">10:00pm</option>
+                    <option value="1335">10:15pm</option>
+                    <option value="1350">10:30pm</option>
+                    <option value="1365">10:45pm</option>
+                    <option value="1380">11:00pm</option>
+                    <option value="1395">11:15pm</option>
+                    <option value="1410">11:30pm</option>
+                    <option value="1425">11:45pm</option>
+                  </select>
+                </div>
+                <span id="spn-end-time-validation" style="display:none;" class="text-muted">
+                  End must come after start
+                </span>
+              </td>
+              <td class="td-btn"><button type="button" class="btn btn-primary" id="btn-add-block"><i class="feather-plus f-20"></i></button></td>
+            </tr>
+          </tfoot>
+        </table>
+        <div class="alert alert-warning" id="modal-has-unsaved-changes" style="display:none;">
+          Press Ok to keep changes.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-info" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="btn-save-blocks" data-dismiss="modal" disabled>
+          <div class="spinner-grow" role="status" style="display:none;">
+          </div>
+          <div class="btn-text"><span class="fa fa-floppy-o"></span> Ok</div>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+@section Scripts
+  {
+  <partial name="_ValidationScriptsPartial.cshtml" />
+  <partial name="_MomentTimeZonePartial" />
+  <script src="~/assets/plugins/material-datetimepicker/js/bootstrap-material-datetimepicker.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+  <script src="~/assets/plugins/inputmask/js/inputmask.min.js"></script>
+  <script src="~/assets/plugins/inputmask/js/jquery.inputmask.min.js"></script>
+  <script src="https://www.amcharts.com/lib/4/core.js"></script>
+  <script src="https://www.amcharts.com/lib/4/charts.js"></script>
+  <script src="https://www.amcharts.com/lib/4/themes/animated.js"></script>
+  <script src="~/js/appts_add_availability.js"></script>
+}

@@ -1,0 +1,73 @@
+﻿@using System.Security.Principal
+@using Microsoft.AspNetCore.Authentication.AzureADB2C.UI
+@using Microsoft.Extensions.Options
+@using Appts.Common.Constants
+@inject IOptionsMonitor<AzureADB2COptions> AzureADB2COptions
+
+@{
+  var options = AzureADB2COptions.Get(AzureADB2CDefaults.AuthenticationScheme);
+}
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+@{
+  var isSubscriber = (await AuthorizationService.AuthorizeAsync(User, "PaidSubscriber")).Succeeded;
+  var isAdmin = (await AuthorizationService.AuthorizeAsync(User, "ApptsAdmin")).Succeeded;
+}
+
+@if (User.Identity.IsAuthenticated)
+{
+  <ul class="navbar-nav navbar-right">
+    @if (!string.IsNullOrEmpty(options.EditProfilePolicyId))
+    {
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbar-dd-account" role="button" data-toggle="dropdown">
+          <img class="avatar avatar-base" height="32" width="32" style="max-height:32px;max-width:32px;" src="https://cdnappts3.azureedge.net/thumbnail-avatars/@User.Claims.First(c => c.Type == IdentityK.NameIdentifier).Value" />
+        </a>
+        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbar-dd-account">
+          <h6 class="dropdown-header">@User.Identity.Name</h6>
+          @if (isSubscriber)
+          {
+            <a asp-controller="ServiceProvider" asp-action="Settings" class="dropdown-item">Service Provider</a>
+            <a asp-controller="Client" asp-action="Settings" class="dropdown-item">My Client Profile</a>
+            <a asp-controller="Site" asp-action="Preferences" class="dropdown-item">Preferences</a>
+            <a asp-controller="Subscription" asp-action="Index" class="dropdown-item">Subscription</a>
+            <a asp-controller="Account" asp-action="Manage" class="dropdown-item">Account</a>
+            if (isAdmin)
+            {
+              <div class="dropdown-divider"></div>
+              <a asp-controller="Admin" asp-action="Index" class="dropdown-item">Admin</a>
+              <a asp-controller="Stock" asp-action="Index" class="dropdown-item">Stock</a>
+              <a asp-controller="Video" asp-action="Index" class="dropdown-item">Video 1</a>
+              <a asp-controller="V" asp-action="Index" class="dropdown-item">Video 2</a>
+              <a asp-controller="Badge" asp-action="Index" class="dropdown-item">Badge</a>
+              <a asp-controller="Organization" asp-action="Index" class="dropdown-item">Organization</a>
+              <a asp-controller="Sms" asp-action="Index" class="dropdown-item">Sms</a>
+            }
+            @*<a class="dropdown-item" asp-area="AzureADB2C" asp-controller="Account" asp-action="EditProfile">Account</a>*@
+          }
+          else
+          {
+            <a asp-controller="Client" asp-action="Settings" class="dropdown-item">Client Settings</a>
+            <a asp-controller="Site" asp-action="Preferences" class="dropdown-item">Preferences</a>
+            <a asp-controller="Client" asp-action="BecomeAServiceProvider" class="dropdown-item">Become a Service Provider</a>
+            <a asp-controller="Account" asp-action="Manage" class="dropdown-item">Account</a>
+            @*<a class="dropdown-item" asp-area="AzureADB2C" asp-controller="Account" asp-action="EditProfile">Account</a>*@
+          }
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item mt-2" asp-area="AzureADB2C" asp-controller="Account" asp-action="SignOut"><i class="feather-log-out"></i> <i>Sign Out</i></a>
+        </div>
+      </li>
+
+    }
+    else
+    {
+      <li class="navbar-text">Hello @User.Identity.Name!</li>
+    }
+  </ul>
+}
+else
+{
+  <ul class="navbar-nav navbar-right">
+    <li class="nav-item"><a asp-controller="Account" asp-action="SignIn" asp-area="" class="nav-link"><i class="feather-log-in"></i> Sign-In</a></li>
+  </ul>
+}

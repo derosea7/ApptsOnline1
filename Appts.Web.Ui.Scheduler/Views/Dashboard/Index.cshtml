@@ -1,0 +1,240 @@
+﻿@using Appts.Web.Ui.Scheduler.ViewModels;
+@using Appts.Models.Domain;
+@model ApptsCalendarViewModel;
+@{
+  ViewData["Title"] = "Dashboard";
+}
+@section MetaContent{
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.1/main.min.css" rel="stylesheet" />
+  <style>
+    #chartdiv {
+      width: 100%;
+      height: 500px;
+    }
+  </style>
+}
+<input type="hidden" id="userorle" value="@Model.UserRole" />
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <h1>Dashboard</h1>
+      @*<a asp-controller="Stock" asp-action="Index" />*@
+      @*<a asp-controller="Video" asp-action="Index">Try a Video Call!</a>
+    <a asp-controller="Sms" asp-action="Index">Try sending an SMS!</a>*@
+      @* alert and promo section *@
+      @*<div class="alert alert-info" role="alert">
+        <h4 class="alert-heading">Start a meeting anytime</h4>
+        <p class="mb-0"> Start a meeting now and invite clients to join, or schedule a video call appointment for another time.</p>
+        <hr />
+        <a asp-controller="Video" asp-action="NewMeeting" class="btn btn-success">New meeting</a>
+        <a asp-controller="Client" asp-action="Manage" class="float-right">New appointment</a>
+      </div>
+      <br />*@
+    </div>
+  </div>
+</div>
+
+@*<div class="card">
+    <div class="card-header">
+      User Claims
+    </div>
+    <div class="card-body">
+
+      @if (User.Identity.IsAuthenticated)
+      {
+        <p>Claims</p>
+        @foreach (var claim in User.Claims)
+        {
+          <div><span class="text-muted">@claim.Type</span>: @claim.Value</div>
+        }
+      }
+
+    </div>
+  </div>*@
+
+@{
+  if (Model.UserRole == UserRole.Subscriber)
+  {
+    @*<div class="card">
+        <div class="card-header">New appts (last 24 hours)</div>
+        <div class="card-body">
+          Count of new aptps scheduled, or whatever metric makes sense
+        </div>
+      </div>
+      <br />*@
+  }
+
+  if (Model.UserRole == UserRole.Subscriber || Model.UserRole == UserRole.Client)
+  {
+    <div class="row p-0 no-gutters">
+      <div class="col-md-12 p-0">
+        <div class="card" id="calendar-card">
+          @*<div class="card-header">Calendar view</div>*@
+          <div class="card-body">
+            <div id="calendar"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row p-0 no-gutters">
+      <div class="col-md-12 p-0">
+        <div class="card" id="calendar-card">
+          @*<div class="card-header">Calendar view</div>*@
+          <div class="card-body">
+            <div id="calendar"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  }
+}
+
+
+<!-- Modal -->
+<div class="modal fade" id="detailModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="detailModalTitle"></h5>
+        <button type="button" class="close" data-dismiss="modal">
+          <span>&times;</span>
+        </button>
+      </div>
+      <div class="modal-body p-0">
+        <table class="table table-hover">
+          <tr>
+            <td id="td-appt-type-breif" style="text-align:center;" colspan="2">Speech Therapy | 50 mins</td>
+          </tr>
+          <tr>
+            <td id="td-start-date" style="text-align:center;" colspan="2">Sat, October 5, 2019</td>
+          </tr>
+          <tr>
+            <td class="pb-1" style="text-align:center;" colspan="2">
+              <span id="spn-start">5:30 AM</span>
+              &nbsp;<span class="text-muted" id="spn-start-date">10/5/2019</span>
+            </td>
+          </tr>
+          <tr>
+            <td class="p-0" style="text-align:center;border-bottom:0px;border-top:0px;" colspan="2"><i class="text-muted">to</i></td>
+          </tr>
+          <tr>
+            <td class="pt-1" style="text-align:center;border-top:0px;" colspan="2">
+              <span id="spn-end">6:20 AM</span>
+              &nbsp;<span class="text-muted" id="spn-end-date">10/5/2019</span>
+            </td>
+          </tr>
+          <tr style="text-align: center;">
+            <td>Client Email</td>
+            <td id="td-client-email">derosea7@gmail.com</td>
+          </tr>
+
+
+          <tr style="text-align: center;">
+            @*<td id="td-show-more" style="text-align:center;" colspan="2">
+                <a href="javascript:void(0);" id="a-more-details">Show more details</a>
+              </td>*@
+          </tr>
+          <tr class="td-details-show-more">
+            <td>Created</td>
+            <td id="td-created-on">Model.Created?.On?.ToString("f")</td>
+          </tr>
+          <tfoot id="tf-more-info">
+            <tr>
+              <td id="td-show-more" style="text-align:center;" colspan="2">
+                <a href="javascript:void(0);" id="a-more-details">Show more details</a>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+        <table id="tbl-more-info" class="table table-hover" style="display:none;">
+          <tr>
+            <td>Created</td>
+            <td id="td-created-on">Model.Created?.On?.ToString("f")</td>
+          </tr>
+        </table>
+        <div class="row p-2" id="btn-row-modal-links">
+          <div class="col-6">
+            <a id="a-cancel" class="btn btn-outline-primary btn-block">Cancel</a>
+          </div>
+          <div class="col-6">
+            <a id="a-reschedule" class="btn btn-outline-secondary btn-block">Reschedule</a>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-info" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+@section Scripts{
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.1/main.min.js"></script>
+  <script src="~/js/appts_calendar_view.js"></script>
+  <script>
+    $(document).ready(function () { appts_calendar_view.init('dashboard'); });
+  </script>
+  <script src="https://www.amcharts.com/lib/4/core.js"></script>
+  <script src="https://www.amcharts.com/lib/4/charts.js"></script>
+  <script src="https://www.amcharts.com/lib/4/themes/animated.js"></script>
+  <script>
+    am4core.ready(function () {
+      am4core.useTheme(am4themes_animated);
+      var chart = am4core.create("chartdiv", am4charts.XYChart);
+      chart.data = [{
+        "day": "sun",
+        "newappts": 3,
+        "apptsfin": 1
+      }, {
+        "day": "mon",
+        "newappts": 1,
+        "apptsfin": 7
+      }, {
+        "day": "tue",
+        "newappts": 4,
+        "apptsfin": 5
+      }, {
+        "day": "wed",
+        "newappts": 6,
+        "apptsfin": 5
+      }, {
+        "day": "thu",
+        "newappts": 3,
+        "apptsfin": 4
+      }, {
+        "day": "fri",
+        "newappts": 3,
+        "apptsfin": 3
+      }, {
+        "day": "sat",
+        "newappts": 3,
+        "apptsfin": 5
+      }];
+      var categoryAxis = chart.yAxes.push(new am4charts.CategoryAxis());
+      categoryAxis.dataFields.category = "day";
+      categoryAxis.renderer.inversed = true;
+      categoryAxis.renderer.grid.template.location = 0;
+      var valueAxis = chart.xAxes.push(new am4charts.ValueAxis());
+      valueAxis.renderer.opposite = true;
+      var series = chart.series.push(new am4charts.ColumnSeries());
+      series.dataFields.categoryY = "day";
+      series.dataFields.valueX = "newappts";
+      series.name = "newappts";
+      series.columns.template.fillOpacity = 0.5;
+      series.columns.template.strokeOpacity = 0;
+      series.tooltipText = "Income in {categoryY}: {valueX.value}";
+      var lineSeries = chart.series.push(new am4charts.LineSeries());
+      lineSeries.dataFields.categoryY = "day";
+      lineSeries.dataFields.valueX = "apptsfin";
+      lineSeries.name = "apptsfin";
+      lineSeries.strokeWidth = 3;
+      lineSeries.tooltipText = "Expenses in {categoryY}: {valueX.value}";
+      var circleBullet = lineSeries.bullets.push(new am4charts.CircleBullet());
+      circleBullet.circle.fill = am4core.color("#fff");
+      circleBullet.circle.strokeWidth = 2;
+      chart.cursor = new am4charts.XYCursor();
+      chart.cursor.behavior = "zoomY";
+      chart.legend = new am4charts.Legend();
+    });
+  </script>
+}

@@ -1,0 +1,106 @@
+﻿@model Appts.Web.Ui.Scheduler.ViewModels.VideoCallVm
+@{
+  ViewData["Title"] = "Video Meeting";
+}
+
+
+@section MetaContent
+{
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+  <link href="~/css/appts_group_video.css" rel="stylesheet" />
+}
+
+<div class="container">
+  <div id="main-container">
+    <div id="screen-share-btn-container">
+      <!-- insert button to share screen -->
+
+      <div id="screen-share-btn-container" class="col-2 float-right text-right mt-2">
+        <button id="screen-share-btn" type="button" class="btn btn-lg">
+          <i id="screen-share-icon" class="fas fa-share-square"></i>
+        </button>
+      </div>
+      <div id="buttons-container" class="row justify-content-center mt-3">
+        <div class="col-md-2 text-center">
+          <button id="mic-btn" type="button" class="btn btn-block btn-dark btn-lg">
+            <i id="mic-icon" class="fas fa-microphone"></i>
+          </button>
+        </div>
+        <div class="col-md-2 text-center">
+          <button id="video-btn" type="button" class="btn btn-block btn-dark btn-lg">
+            <i id="video-icon" class="fas fa-video"></i>
+          </button>
+        </div>
+        <div class="col-md-2 text-center">
+          <button id="exit-btn" type="button" class="btn btn-block btn-danger btn-lg">
+            <i id="exit-icon" class="fas fa-phone-slash"></i>
+          </button>
+        </div>
+      </div>
+
+    </div>
+    <div id="buttons-container">
+      <!-- insert buttons to toggle audio/video and leave/end call -->
+    </div>
+    @*<div id="full-screen-video"></div>*@
+    <div id="lower-video-bar">
+      <div id="remote-streams-container">
+        <div id="remote-streams">
+          <!-- insert remote streams dynamically -->
+        </div>
+      </div>
+      @*<div id="local-stream-container">
+          <div id="local-video"></div>
+        </div>*@
+      <div id="local-stream-container" class="col p-0">
+        <div id="mute-overlay" class="col">
+          <i id="mic-icon" class="fas fa-microphone-slash"></i>
+        </div>
+        <div id="no-local-video" class="col text-center">
+          <i id="user-icon" class="fas fa-user"></i>
+        </div>
+        <div id="local-video" class="col p-0"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="container-fluid">
+  <div class="row no-gutters">
+    <div class="col-12 p-0">
+
+      <div class="card">
+        <div class="card-body">
+          <input type="hidden" id="apptstoken" value="@Model.Token" />
+          <input type="hidden" id="apptsscreensharetoken" value="@Model.ScreenShareToken" />
+          <input type="hidden" id="apptschannelid" value="@Model.ChannelId" />
+          <input type="hidden" id="apptsuserid" value="@Model.UserId" />
+          <input type="hidden" id="apptsscreenshareuid" value="@Model.ScreenShareUid" />
+          <p>UserId: @Model.UserId</p>
+          <p>Token: @Model.Token</p>
+          <p>Screenshare UserId: @Model.ScreenShareUid</p>
+          <p>Token: @Model.ScreenShareToken</p>
+          @*<p>ChannelId: @Model.ChannelId</p>*@
+        </div>
+      </div>
+
+
+
+    </div>
+  </div>
+
+
+</div>
+@section Scripts
+{
+  <script src="https://saapptscdn.blob.core.windows.net/files/appts/lib/AgoraRTCSDK-3.4.0.js"></script>
+  <script src="~/js/appts_video_call.js"></script>
+  <script src="~/js/appts_group_video.js"></script>
+  @*<script>
+    $("#mic-btn").prop("disabled", true);
+    $("#video-btn").prop("disabled", true);
+    $("#screen-share-btn").prop("disabled", true);
+    $("#exit-btn").prop("disabled", true);
+  </script>*@
+}

@@ -1,0 +1,14 @@
+title Email Reminders
+actor Client
+participant Appts
+participant ServiceBus
+participant AzureFn
+participant SendGrid
+database Cosmos
+
+
+Client->Appts:schedule\nappt
+Appts->ServiceBus:scheduled\nmsg
+==time passes==
+ServiceBus->AzureFn:info
+AzureFn->SendGrid:info

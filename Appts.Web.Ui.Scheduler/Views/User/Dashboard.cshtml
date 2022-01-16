@@ -1,0 +1,77 @@
+﻿@using Appts.Models.View
+@model SendTestEmailReminderViewModel
+@{
+  ViewData["Title"] = "Dashboard";
+}
+@section MetaContent
+  {
+  <link href="../assets/plugins/notification/css/notification.min.css" rel="stylesheet">
+}
+
+<h3>Welcome!</h3>
+
+<div asp-validation-summary="All" class="text-danger"></div>
+
+@if (Context.Request.Query["es"] == "t")
+{
+  <input type="hidden" id="qs-test-sent" value="t" />
+}
+
+<div class="card mb-2">
+  <div class="card-header">
+    Appt Reminder Email Test
+  </div>
+  <div class="card-body">
+    <form asp-controller="Reminder" asp-action="ScheduleEmailReminderTest" method="post">
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label for="inputEmail4">Email To</label> <span class="text-danger">*</span>
+          <input asp-for="Email" type="email" class="form-control" id="inputEmail4" placeholder="Email">
+          <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="inputAddress">Subject</label>
+        <input asp-for="Subject" type="text" class="form-control" id="inputAddress" placeholder="Appt Reminder | 15 minutes | Yoga">
+      </div>
+      <div class="form-group">
+        <label for="taBody">Body</label>
+        <textarea asp-for="Body" class="form-control" id="taBody" rows="3"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="tbSecondsToWait">Seconds To Wait</label>
+        <input asp-for="SecondsToWait" type="number" class="form-control" id="secondsToWait" placeholder="30" style="max-width:60px;">
+        <small id="passwordHelpBlock" class="form-text text-muted">
+          Number of seconds to wait before sending reminder.
+        </small>
+      </div>
+      <button type="submit" class="btn btn-primary">Schedule Reminder</button>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    User Claims
+  </div>
+  <div class="card-body">
+
+    @if (User.Identity.IsAuthenticated)
+    {
+      <p>Claims</p>
+      @foreach (var claim in User.Claims)
+      {
+        <div><span class="text-muted">@claim.Type</span>: @claim.Value</div>
+      }
+    }
+
+  </div>
+</div>
+
+@section Scripts {
+  <!-- Notification Js -->
+  <script src="../assets/plugins/notification/js/bootstrap-growl.min.js">
+
+  </script>
+  <script src="~/js/appts_send_test_email_reminder.js"></script>
+}

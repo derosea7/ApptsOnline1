@@ -1,0 +1,9 @@
+﻿ul.list-group {
+  border: 1px solid #2b2c2f !important;
+}
+
+li.list-group-item {
+  background: #212224;
+  border: 1px solid #2b2c2f !important;
+  padding: 0.375rem 0.75rem;
+}

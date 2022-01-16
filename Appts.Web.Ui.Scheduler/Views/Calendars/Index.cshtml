@@ -1,0 +1,119 @@
+﻿@model System.Collections.Generic.List<Appts.Models.Document.Calendar>
+@{
+  ViewData["Title"] = "Calendars";
+  bool modelHasCalendars = (Model != null && Model.Count > 0) ? true : false;
+}
+@section MetaContent
+  {
+  <link href="~/assets/fonts/material/css/materialdesignicons.min.css" rel="stylesheet" />
+  <link href="../assets/plugins/notification/css/notification.min.css" rel="stylesheet">
+}
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <input type="hidden" id="hf-calendar-disconnected" value="@TempData["CalendarDisconnected"]" />
+      <h3>Connected Calendars</h3>
+      <hr />
+      @if (!modelHasCalendars)
+      {
+        <div class="alert alert-secondary" role="alert">
+          <h4 class="alert-heading">Appts is Pending Verification</h4>
+          <p>You may see the following message when attempting to connect a Goolge Calendar:</p>
+          <img src="~/assets/images/gcal-app-isnt-verified-small.png" style="height:45%;width:45%;" />
+          <hr />
+          <div>
+            <a href="#" class="btn btn-success" id="btn-what-to-do">What to do?</a>
+            <a href="#" class="alert-link">Is this safe?</a>
+          </div>
+        </div>
+      }
+      <div class="alert alert-secondary" role="alert">
+        <h4 class="alert-heading">Limited Support</h4>
+        <p class="mb-0">Currently, Google Calendar is the only supported connected calendar.</p>
+      </div>
+      @if (modelHasCalendars)
+      {
+        foreach (var item in Model)
+        {
+          <div class="row">
+            <div class="col-4">
+              <div class="card text-center calcard" style="width: 18rem;">
+                <div class="card-body">
+                  @*<img src="~/myimages/gcal-icon-128x128.png" />*@
+                  <i class="mdi mdi-google" style="font-size: 50px;"></i>
+                  <h4 class="card-title">@item.Provider</h4>
+                  <p class="card-text">Added On: @item.AddedOn.ToShortDateString()</p>
+                  <a class="card-link" asp-controller="Calendars" asp-action="DisconnectGoogleCalendar">Disconnect</a>
+                </div>
+              </div>
+            </div>
+            <div class="col-8"></div>
+          </div>
+        }
+      }
+      else
+      {
+        <div class="row" id="no-content-hint">
+          <div class="col-12 text-center">
+            <i class="mdi mdi-calendar-plus" style="font-size:75px;color:#ababab;"></i>
+            <h4>No connected calendars to display</h4>
+            <p>Once a social calendar is connected to your Appts Online account, any appointment scheduled, rescheduled, or canceled, will relfected convientely in your calendar as well as on Appts.Online.</p>
+            <div>
+              <a asp-action="ConnectGoogleCalendar" class="btn btn-primary mb-2"><i class="mdi mdi-calendar-plus"></i> Connect a Google Calendar</a>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+<div class="modal" id="mdl-confirm-disconnect" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Are you sure: Disconnect this Social Calendar?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Press Disconnect to confrim.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary f-16" data-dismiss="modal"><span class="mdi mdi-arrow-left f-20"></span> Cancel</button>
+        <form method="post" id="frm-confirm-disconnect">
+          <button type="submit" class="btn btn-primary f-16" id="btn-confirm-disconnect">
+            <div class="spinner-grow" role="status" style="display:none;">
+            </div>
+            <div class="btn-text"><span class="mdi mdi-trash-can-outline f-20"></span> Disconnect</div>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal" id="mdl-help-app-isnt-verified" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">How to: connect Google Calendar while Appts is still pending verification</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>After clicking the button Connect Google Calendar, you might first see this screen from Google:</p>
+        <img src="~/assets/images/gcal-app-isnt-verified-small.png" style="width:100%;" />
+        <p> Just click the "Advance" link in the bottom-left corner. You'll see one more note:</p>
+        <img src="~/assets/images/gcal-advance-app-isnt-verified-small.png" style="width:100%;" />
+        <p>Click Go to Appts (unsafe) to continue.</p>
+      </div>
+    </div>
+  </div>
+</div>
+@section Scripts
+  {
+  <script src="../assets/plugins/notification/js/bootstrap-growl.min.js"></script>
+  <script src="~/js/appts_common.js"></script>
+  <script src="~/js/appts_manage_calendars.js"></script>
+}

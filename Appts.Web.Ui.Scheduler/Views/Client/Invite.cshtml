@@ -1,0 +1,125 @@
+﻿@model Appts.Models.View.ManageClientsViewModel
+@using Appts.Models.Document
+@{
+  ViewData["Title"] = "Client Management";
+  string vanityUrl = $"https://{Model.RequestHost}/schedule/{Model.ServiceProviderVanityUrl}";
+}
+@section MetaContent
+{
+  <link href="~/assets/plugins/notification/css/notification.min.css" rel="stylesheet" />
+}
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <h3>Client Management</h3>
+      <hr class="hr-cmd-btn-bar" />
+      @if (ViewData["inviteSent"] != null)
+      {
+        <p>@ViewData["inviteSent"]</p>
+      }
+      @if (ViewData["inviteSent"]?.ToString() == "true")
+      {
+
+        <div class="alert alert-success">
+          Email successfully sent! Good luck!
+        </div>
+      }
+    </div>
+  </div>
+</div>
+<div class="container">
+  <div class="row">
+    <div class="col-12 col-md-9 col-lg-6">
+      <div class="card">
+        <div class="card-header"><i class="feather-user-plus"></i> Invite a client</div>
+        <div class="card-body">
+          <p class="card-text">Invite a client to schedule an appointment with you.</p>
+          <form asp-action="SendInvite">
+            <input type="hidden" asp-for="ServiceProviderVanityUrl" />
+            <input type="hidden" asp-for="ServiceProviderDisplayName" />
+            <input type="hidden" asp-for="SpEmail" />
+            <div class="form-group">
+            </div>
+            <div class="form-group">
+              <div class="custom-control custom-switch">
+                <input type="checkbox" class="custom-control-input" id="cbSendSms" asp-for="@Model.SendSms">
+                <label class="custom-control-label" for="cbSendSms">Client Phone Number to send SMS</label>
+              </div>
+              @*<label for="tbClientPhone">
+                Client Phone Number
+                <a tabindex="0" role="button" data-toggle="popover"
+                   id="a-po-info-client-phone"
+                   data-trigger="hover"
+                   style="cursor:pointer;"
+                   data-content="">
+                  <span class="fa fa-question-circle text-muted"></span>
+                </a>
+              </label>*@
+              <div class="input-group mb-0">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="feather-mail"></i></span>
+                </div>
+                <input type="tel" asp-for="Phone" class="form-control" placeholder="(123) 123-1234">
+              </div>
+              <small class="text-muted">Client's phone number to text invitation to</small>
+            </div>
+            <div class="form-group">
+              <div class="custom-control custom-switch">
+                <input type="checkbox" class="custom-control-input" id="cbSendEmail" asp-for="@Model.SendEmail" checked>
+                <label class="custom-control-label" for="cbSendEmail">Client Email to send Invite</label>
+              </div>
+              @*<label for="tbClientEmail">
+                Client Email
+                <a tabindex="0" role="button" data-toggle="popover"
+                   id="a-po-info-client-email"
+                   data-trigger="hover"
+                   style="cursor:pointer;"
+                   data-content="">
+                  <span class="fa fa-question-circle text-muted"></span>
+                </a>
+              </label>*@
+              <div class="input-group mb-0">
+                <div class="input-group-prepend">
+                  <span class="input-group-text"><i class="feather-mail"></i></span>
+                </div>
+                <input type="email" asp-for="Email" class="form-control" placeholder="new_client@example.com">
+              </div>
+              <small class="text-muted">Client's email address to send invitation to</small>
+            </div>
+            <div class="form-group">
+              <label>Your Vanity Universal Resource Link</label>
+              <div class="input-group mb-1">
+                <textarea rows="2" id="tb-vanity-url" class="form-control" readonly="readonly">@vanityUrl</textarea>
+                <div class="input-group-append">
+                  <span class="input-group-text" id="basic-addon2">
+                    <a href="javascript:void(0);" id="btn-copy-url-to-clipboard"><i class="feather-clipboard"></i> copy</a>
+                  </span>
+                </div>
+                <div class="input-group-append">
+                  <span class="input-group-text" id="basic-addon2">
+                    <a href="@vanityUrl" target="_blank"><i class="feather-external-link"></i></a>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="tbPersonalMessage">Personal Message</label>
+              <textarea rows="2" asp-for="PersonalMessage" class="form-control" id="tbPersonalMessage"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Invite! <i class="feather-play"></i></button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-md-9 col-lg-6">
+      @*Email preview?*@
+    </div>
+  </div>
+
+</div>
+@section Scripts {
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+  <script src="~/assets/plugins/notification/js/bootstrap-growl.min.js"></script>
+  <script src="~/js/appts_common.js"></script>
+  <script src="~/js/appts_manage_clients.js"></script>
+}

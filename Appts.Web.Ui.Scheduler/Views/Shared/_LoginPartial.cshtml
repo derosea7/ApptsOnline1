@@ -1,0 +1,39 @@
+﻿@using System.Security.Principal
+@using Microsoft.AspNetCore.Authentication.AzureADB2C.UI
+@using Microsoft.Extensions.Options
+@inject IOptionsMonitor<AzureADB2COptions> AzureADB2COptions
+
+@{
+  var options = AzureADB2COptions.Get(AzureADB2CDefaults.AuthenticationScheme);
+}
+
+
+@if (User.Identity.IsAuthenticated)
+{
+  <ul class="navbar-nav navbar-right">
+    @if (!string.IsNullOrEmpty(options.EditProfilePolicyId))
+    {
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbar-dd-account" role="button" data-toggle="dropdown">
+          <i class="feather icon-user"></i> Hello @User.Identity.Name!
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbar-dd-account">
+          <a class="dropdown-item" asp-area="AzureADB2C" asp-controller="Account" asp-action="EditProfile">Account</a>
+          <a asp-controller="Subscription" asp-action="Index" class="dropdown-item">Subscription</a>
+          <a class="dropdown-item mt-2" asp-area="AzureADB2C" asp-controller="Account" asp-action="SignOut"><i class="feather icon-log-out"></i> <i>Sign Out</i></a>
+        </div>
+      </li>
+
+    }
+    else
+    {
+      <li class="navbar-text">Hello @User.Identity.Name!</li>
+    }
+  </ul>
+}
+else
+{
+  <ul class="navbar-nav navbar-right">
+    <li class="nav-item"><a asp-controller="Account" asp-action="SignIn" asp-area="" class="nav-link"><i class="feather icon-log-in"></i> Sign-In</a></li>
+  </ul>
+}

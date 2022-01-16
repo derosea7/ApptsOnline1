@@ -1,0 +1,354 @@
+﻿@using Appts.Models.Document;
+@using Appts.Models.Domain;
+@using Appts.Models.View;
+@using Appts.Web.Ui.Scheduler.ViewModels;
+@model AppointmentsViewModel
+
+@section MetaContent
+  {
+  <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+}
+<style>
+  #btn-date-range-picker:hover {
+    cursor: pointer;
+  }
+  #start-date-picker, #end-date-picker {
+    cursor: pointer;
+    background: white;
+  }
+  .a-detail-link {
+    visibility: hidden;
+    border: 0;
+  }
+  .btn-detail-link {
+    visibility: hidden;
+    border: 0;
+  }
+  .td-canceled {
+    background-color: #f39c12;
+    min-width: 3px;
+    width: 3px;
+    height: 100%;
+  }
+  .td-detail {
+  }
+
+  .lgi-last {
+    border-bottom-left-radius: 2px !important;
+  }
+  .lgi-context {
+    border-left: 3px solid !important;
+  }
+  .lgi-canceled {
+    border-left-color: #f39c12 !important;
+  }
+  .td-details-show-more {
+    display: none;
+  }
+</style>
+@{
+  ViewData["Title"] = "Appointments";
+}
+<a asp-action="RefreshTimes" id="a-uri-refresh-times" style="display:none;"></a>
+<a asp-action="Detail" id="a-uri-appointment-detail" style="display:none;"></a>
+<a asp-action="Cancel" id="a-uri-cancel-base" style="display:none;"></a>
+<a asp-action="Reschedule" id="a-uri-reschedule-base" style="display:none;"></a>
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <div class="row no-gutters">
+        <div class="col-auto">
+          <h1>Appointments</h1>
+        </div>
+        <div class="col-auto ml-auto align-self-center">
+          <a tabindex="0" role="button"
+             id="btn-date-range-picker"
+             style="display:none;"
+             class="btn btn-secondary mb-1"
+             data-trigger="focus"
+             data-toggle="popover"
+             data-placement="bottom"></a>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-12">
+          @Model.NewApptCount new appt(s)
+        </div>
+      </div>
+      <div class="card  mb-2">
+        <div class="card-header">
+          <a href="#clps-filters" data-toggle="collapse"><span class="feather-filter"></span>&nbsp;Filters</a>
+        </div>
+        <div class="collapse" id="clps-filters">
+          <div class="card-body">
+            <form id="frm-filters">
+              <input type="hidden" name="start" id="range-start-date" value="@Model.StartDate" />
+              <input type="hidden" name="end" id="range-end-date" value="@Model.EndDate" />
+              <input name="tz" type="hidden" value="@Model.DisplayIanaTimeZoneId" />
+              <input id="sp-vanity-url" type="hidden" value="@Model.SpVanityUrl" />
+              <div class="form-row">
+                <div class="form-group col-md-4">
+                  <label for="start-date-picker">Start Date</label>
+                  <input type="text" class="form-control" id="start-date-picker" readonly="readonly" />
+                </div>
+                <div class="form-group col-md-4">
+                  <label for="end-date-picker">End Date</label>
+                  <input type="text" class="form-control" id="end-date-picker" readonly="readonly" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-md-4">
+                  <label for="">Appointment Type</label>
+                  <select asp-for="AppointmentTypeId" asp-items="@Model.AppointmentTypes" class="form-control"></select>
+                </div>
+                <div class="form-group col-md-4">
+                  <label for="">Appointment Status</label>
+                  <select asp-for="AppointmentStatus" asp-items="@Model.AppointmentStatusOptions" class="form-control"></select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary">
+                <span class="feather-refresh-cw"></span>&nbsp;Apply
+              </button>
+              <button type="button" class="btn btn-info" id="btn-reset-filters">
+                <i class="feather-x"></i>&nbsp;Reset
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+      <partial name="_TimeZoneDisplayPartial" />
+      @{
+        bool showContext = false;
+        int lastAppt, apptCounter;
+      }
+      @foreach (AppointmentsByDateViewModel daysAppt in Model.AppointmentByDate)
+      {
+        lastAppt = daysAppt.Appointments.Count - 1;
+        apptCounter = 0;
+        <div class="card mb-2">
+          <div class="card-header">
+            <h5 class="card-text">
+              <div class="d-flex justify-content-between">
+                <div class="d-block d-sm-none">
+                  @daysAppt.AppointmentDate.ToString("ddd, MMM d, yyyy")
+                </div>
+                <div class="d-none d-sm-block">
+                  @daysAppt.AppointmentDate.ToString("D")
+                </div>
+                <div class="badge badge-info">@daysAppt.Appointments.Count</div>
+              </div>
+            </h5>
+          </div>
+          <ul class="list-group list-group-flush">
+            @foreach (Appointment appointment in daysAppt.Appointments)
+            {
+              showContext = false;
+              string contextClass = "";
+              if (apptCounter == lastAppt)
+              {
+                contextClass = "lgi-last ";
+              }
+              switch (appointment.Status)
+              {
+                case EntityStatus.Active:
+                  break;
+                case EntityStatus.Canceled:
+                  showContext = true;
+                  contextClass += " lgi-context lgi-canceled";
+
+                  break;
+                case EntityStatus.Pending:
+
+                  break;
+                case EntityStatus.Declined:
+
+                  break;
+                default:
+                  break;
+              }
+              bool showNewTag = false;
+              foreach (string newApptId in Model.NewApptIds)
+              {
+                if (appointment.Id == newApptId)
+                {
+                  showNewTag = true;
+                  break;
+                }
+              }
+              <li class="list-group-item appt-item @contextClass" data-timezone="@appointment.TimeZoneId">
+                <table style="width:100%;" class="tbl-detail">
+                  <tr>
+                    <td class="td-content">
+                      <div class="row">
+                        <div class="col-xs-12 col-sm-6">
+                          <div data-start="@appointment.StartTime"></div>
+                          <div><i class="feather-clock text-muted"></i> @appointment.StartTime.ToString("t") - @appointment.EndTime.ToString("t")</div>
+                          <div><i class="feather-mail text-muted"></i>  @appointment.ClientEmail</div>
+                        </div>
+                        <div class="col-xs-12 col-sm-6">
+                          <div class="float-right">@appointment.AppointmentTypeBreif</div>
+
+                        </div>
+                      </div>
+                      <div class="row ">
+                        <div class="col-12  ">
+                          @*<div class="float-left"><small class="text-muted">Created on @appointment.Created.On?.ToString("t")</small></div>*@
+                          <div class="float-left"><small class="text-muted">Created @appointment.Created.OnAsTimeAgo</small></div>
+                          <div class="float-right"><small class="text-muted">By @appointment.Created.ByName</small></div>
+                        </div>
+                      </div>
+                      @if (showNewTag)
+                      {
+                        <div class="row">
+                          <div class="col-12">
+                            <span class="badge badge-success">New</span>
+                          </div>
+                        </div>
+
+                      }
+                      @if (showContext)
+                      {
+                        <div class="row">
+                          <div class="col">
+                            <span class="text-warning">Canceled</span>&nbsp;<span class="text-muted">@appointment.Canceled?.On?.ToString("g")</span>
+                            &nbsp;<span></span>
+                          </div>
+                        </div>
+                      }
+                    </td>
+                    <td style="width:18px;" class="td-detail">
+                      <button type="button"
+                              title="Details"
+                              class="btn-detail-link btn btn-outline-primary"
+                              data-appt-id="@appointment.Id">
+                        <i class="feather-more-vertical"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </table>
+              </li>
+              apptCounter++;
+            }
+          </ul>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+<div id="popover-content" style="display:none;">
+  <div class="btn-group-vertical" data-toggle="buttons" id="preset-ranges">
+    <button class="btn btn-outline-primary btn-sm range" data-offset="90" type="button" id="btn-range-next-90">Next 90 days</button>
+    <button class="btn btn-outline-primary btn-sm range" data-offset="30" type="button">Next 30 days</button>
+    <button class="btn btn-outline-primary btn-sm range" data-offset="7" type="button">Next 7 days</button>
+    <button class="btn btn-primary btn-sm" type="button" id="btn-preset-range-today">Today</button>
+    <button class="btn btn-outline-primary btn-sm range" data-offset="-7" type="button">Last 7 days</button>
+    <button class="btn btn-outline-primary btn-sm range" data-offset="-30" type="button">Last 30 days</button>
+    <button class="btn btn-outline-primary btn-sm range" data-offset="-90" type="button">Last 90 days</button>
+    <a class="btn btn-primary btn-sm"
+       data-toggle="collapse"
+       href="#clps-filters"
+       role="button">
+      Custom range
+    </a>
+  </div>
+</div>
+<div class="modal fade" id="detailModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="detailModalTitle"></h5>
+        <button type="button" class="close" data-dismiss="modal">
+          <span>&times;</span>
+        </button>
+      </div>
+      <div class="modal-body p-0">
+        <table class="table table-hover">
+          <tr>
+            <td id="td-appt-type-breif" style="text-align:center;" colspan="2">Appt Brief</td>
+          </tr>
+          <tr>
+            <td id="td-start-date" style="text-align:center;" colspan="2">Appt Date</td>
+          </tr>
+          <tr>
+            <td class="pb-1" style="text-align:center;" colspan="2">
+              <span id="spn-start">5:30 AM</span>
+              &nbsp;<span class="text-muted" id="spn-start-date">10/5/2019</span>
+            </td>
+          </tr>
+          <tr>
+            <td class="p-0" style="text-align:center;border-bottom:0px;border-top:0px;" colspan="2"><i class="text-muted">to</i></td>
+          </tr>
+          <tr>
+            <td class="pt-1" style="text-align:center;border-top:0px;" colspan="2">
+              <span id="spn-end">6:20 AM</span>
+              &nbsp;<span class="text-muted" id="spn-end-date">10/5/2019</span>
+            </td>
+          </tr>
+          <tr>
+            <td id="td-appt-timezone" style="text-align:center;" colspan="2">Appt TimeZone Id</td>
+          </tr>
+          <tr style="text-align: center;">
+            <td>Client Email</td>
+            <td id="td-client-email"></td>
+          </tr>
+          <tr style="text-align: center;">
+            <td>Client Mobile</td>
+            <td id="td-client-mobile"></td>
+          </tr>
+          <tr style="text-align: center;">
+            <td>Client First Name</td>
+            <td id="td-client-fname"></td>
+          </tr>
+          <tr style="text-align: center;">
+            <td>Client Last Name</td>
+            <td id="td-client-lname"></td>
+          </tr>
+          <tr style="text-align: center;">
+            @*<td id="td-show-more" style="text-align:center;" colspan="2">
+        <a href="javascript:void(0);" id="a-more-details">Show more details</a>
+      </td>*@
+          </tr>
+          <tr class="td-details-show-more">
+            <td>Created</td>
+            <td id="td-created-on">Model.Created?.On?.ToString("f")</td>
+          </tr>
+          @*<tfoot id="tf-more-info">
+      <tr>
+        <td id="td-show-more" style="text-align:center;" colspan="2">
+          <a href="javascript:void(0);" id="a-more-details">Show more details</a>
+        </td>
+      </tr>
+    </tfoot>*@
+        </table>
+        <table id="tbl-more-info" class="table table-hover" style="display:none;">
+          <tr>
+            <td>Created</td>
+            <td id="td-created-on">Model.Created?.On?.ToString("f")</td>
+          </tr>
+        </table>
+        <div class="row p-2" id="btn-row-modal-links">
+          <div class="col-12">
+            <a id="a-cancel" class="btn btn-outline-primary btn-block">Cancel</a>
+          </div>
+          @*<div class="col-6">
+            <a id="a-reschedule" class="btn btn-outline-secondary btn-block">Reschedule</a>
+          </div>*@
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-info" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+@section Scripts
+  {
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+  <partial name="_MomentTimeZonePartial" />
+  <script src="~/js/appts_tz2.js"></script>
+  <script src="~/js/appts_view_appts.js"></script>
+}

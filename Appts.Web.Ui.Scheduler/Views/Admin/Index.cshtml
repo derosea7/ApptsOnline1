@@ -1,0 +1,59 @@
+﻿@using Appts.Models.View;
+@using Appts.Web.Ui.Scheduler.ViewModels;
+@model AdminDeleteDataVm;
+@{
+  ViewData["Title"] = "Admin";
+}
+@section MetaContent
+{
+  <link href="~/assets/plugins/notification/css/notification.min.css" rel="stylesheet" />
+} 
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <h1>Admin</h1>
+      <a asp-controller="Admin" asp-action="DataByUser">data by user</a>
+      <a asp-controller="Admin" asp-action="StockDataDocsByPartitionId">stock data</a>
+      <div class="card text-center" style="width: 18rem;">
+        <div class="card-body">
+          <h5 class="card-title">ui/api build status</h5>
+          <h6 class="card-subtitle mb-2 text-muted">
+            <img src="https://beastfree.visualstudio.com/ApptsOnline/_apis/build/status/ao%20docker%20build%20and%20push" />
+          </h6>
+          <a href="https://beastfree.visualstudio.com/ApptsOnline/_release?_a=releases&view=mine&definitionId=5" class="card-link">releases</a>
+          <a href="https://beastfree.visualstudio.com/ApptsOnline" class="card-link">devops</a>
+        </div>
+      </div>
+      <input type="hidden" asp-for="DeletedCount" id="hf-deleted-count"/>
+      <div class="card text-center" style="width: 18rem;">
+        <div class="card-body">
+          <h5 class="card-title">bulk delete by user id</h5>
+          <form method="post" asp-action="DeleteData">
+            <div class="form-group">
+              <label for="tb-user-id-to-del">user id</label>
+              <input type="text" class="form-control" id="tb-user-id-to-del" asp-for="@Model.UserId">
+              <span asp-validation-for="UserId" class="text-danger"></span>
+              <small class="form-text text-muted">partition key</small>
+            </div>
+            <div class="form-group">
+              <label for="tb-entity-type-to-del">entity type</label>
+              <input type="text" class="form-control" id="tb-entity-type-to-del" asp-for="@Model.EntityType">
+            </div>
+            <div class="form-group form-check">
+              <input type="checkbox" class="form-check-input" for="exampleCheck1" asp-for="@Model.DeleteAllEntities">
+              <label class="form-check-label" for="exampleCheck1">delete all entities</label>
+            </div>
+            <button type="submit" class="btn btn-primary">Delete</button>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+@section Scripts
+{
+
+  <script src="~/assets/plugins/notification/js/bootstrap-growl.min.js"></script>
+  <script src="~/js/appts_a.js"></script>
+} 

@@ -1,0 +1,295 @@
+﻿@model Appts.Models.View.UpdateServiceProviderSettingsViewModel
+@{
+  ViewData["Title"] = "Service Provider Settings";
+}
+@section MetaContent
+  {
+  <link href="~/assets/fonts/material/css/materialdesignicons.min.css" rel="stylesheet" />
+  <link href="~/assets/plugins/notification/css/notification.min.css" rel="stylesheet" />
+}
+<div class="container body-content" id="content">
+  @*<div class="row">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/Dashboard">Home</a></li>
+        <li class="breadcrumb-item active">Service Provide Settings</li>
+      </ol>
+    </div>*@
+  <div class="row">
+    <div class="col-12">
+      <style>
+        .td-btn {
+          text-align: right;
+        }
+        .td-white {
+          vertical-align: middle !important;
+        }
+      </style>
+      <h3>Service Provider Settings</h3>
+      <form method="post" role="form">
+        <button type="submit" class="btn btn-primary"><i class="feather-save"></i>&nbsp;Save</button>
+        <hr class="hr-cmd-btn-bar">
+
+        <input type="hidden" id="hf-edit-name-successful" value="@TempData["EditSuccessful"]" />
+        @if (Model.IsOnboarding == true)
+        {
+          <div class="row">
+            <div class="col-md-4 col-sm-12">
+              <div class="d-flex justify-content-center">
+                @*<img class="img-fluid" style="max-height:264px;" src="https://saapptscdn.blob.core.windows.net/files/appts/imgs/rocketship.png" />*@
+                <img class="img-fluid" style="max-height:264px;" src="https://saapptscdn.blob.core.windows.net/files/appts/imgs/rockinrocketship.gif" />
+              </div>
+            </div>
+            <div class="col-md-8 col-sm-12">
+              <div class="alert alert-info mt-2">
+                <h3>Welcome to Appts!</h3>
+                A couple quick to-dos to get started;
+                <ul>
+                  <li>Fill in Display Name</li>
+                  <li>Review assumed time zone</li>
+                  <li><a asp-controller="Availability" asp-action="Index">Add some availability</a></li>
+                  <li><a asp-controller="AppointmentType" asp-action="Index">Customize your appointment types</a></li>
+                  <li><a asp-controller="Client" asp-action="Invite"><i>Invite clients!</i></a></li>
+                </ul>
+              </div>
+
+            </div>
+          </div>
+        }
+        <div class="alert alert-warning" id="alert-warning" style="display:none;">
+        </div>
+        <div asp-validation-summary="All" class="text-danger"></div>
+        <a asp-action="GetWhitelistEntries" id="a-uri-get-whitelist" style="display:none;"></a>
+        <a asp-action="UpdateWhitelist" id="a-uri-update-whitelist" style="display:none;"></a>
+        <div class="row">
+          <div class="col-sm-12 col-md-5 col-lg-6">
+            <div class="d-flex justify-content-md-center">
+              <div class="card mb-2 text-center">
+                <div class="card-body">
+                  <img src="https://cdnappts3.azureedge.net/thumbnail-avatars/@Model.SpId" class="avatar-big avatar-base" height="100" width="100" style="" />
+                </div>
+                <div class="card-footer">
+                  <a asp-action="Avatar" asp-controller="Upload" class="btn btn-secondary">Update Avatar</a>
+                </div>
+              </div>
+
+            </div>
+            </div>
+            <div class="col-md-7 col-lg-6 col-sm-12">
+              @{
+                string fullVanityUrl = "https://appts.online/schedule/" + Model.VanityUrl;
+              }
+              <div class="card mb-2">
+                <div class="card-header">
+                  Public Presentation
+                </div>
+                <div class="card-body">
+                  <a asp-controller="Account" asp-action="EditProfile" class="btn btn-secondary">Edit First & Last Name</a>
+                  <div class="form-group mt-2">
+                    <label for="inputEmail3">Display Name</label>
+                    <input asp-for="DisplayName" type="text"
+                           class="form-control" id="inputEmail3"
+                           placeholder="Display Name"
+                           style="max-width:300px;">
+                    <span asp-validation-for="DisplayName" class="text-danger"></span>
+                  </div>
+                  <div class="form-group">
+                    <label for="inputPassword3">Vanity Url</label>
+                    <p class="text-muted d-inline-block d-sm-none mb-1">https://appts.online/schedule/</p>
+                    <div class="input-group mb-3">
+                      <div class="input-group-prepend d-none d-sm-flex">
+                        <span class="input-group-text" id="basic-addon3">https://appts.online/schedule/</span>
+                      </div>
+                      <input asp-for="VanityUrl" type="text" class="form-control" placeholder="Vanity Url" />
+                    </div>
+                    <span asp-validation-for="VanityUrl" class="text-danger"></span>
+                    <small class="text-muted">This is the URL your clients will use to schedule with you.</small>
+                  </div>
+                  <input type="hidden" id="hf-full-vanity-url" value="@fullVanityUrl" />
+                  <a href="@fullVanityUrl" target="_blank" class="btn btn-success">View Scheduling Page <i class="feather-external-link"></i></a>
+                  <a href="javascript:void(0);" id="btn-copy-url-to-clipboard" class="btn btn-secondary"><i class="feather-clipboard"></i> copy</a>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        <div class="row">
+          <div class="col-lg-6 col-md-12">
+            <div class="card mb-2">
+              <div class="card-header">
+                Contact information
+              </div>
+              <div class="card-body">
+                <div class="form-group">
+                  <label for="tbMobilePhone">Mobile phone</label>
+                  <input asp-for="MobilePhone" type="tel"
+                          class="form-control" id="tbMobilePhone"
+                          placeholder="555 555 5555"
+                          style="max-width:300px;">
+                  <small id="mobilePhoneHint" class="form-text text-muted">Add "+ country code" for international numbers.</small>
+                  <span asp-validation-for="MobilePhone" class="text-danger"></span>
+                </div>
+                @*<div class="form-group">
+              <label for="inputAddress">Address</label>
+              <input type="text" class="form-control" id="inputAddress" placeholder="1234 Main St">
+            </div>
+            <div class="form-group">
+              <label for="inputAddress2">Address 2</label>
+              <input type="text" class="form-control" id="inputAddress2" placeholder="Apartment, studio, or floor">
+            </div>
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <label for="inputCity">City</label>
+                <input type="text" class="form-control" id="inputCity">
+              </div>
+              <div class="form-group col-md-4">
+                <label for="inputState">State</label>
+                <select id="inputState" class="form-control">
+                  <option selected>Choose...</option>
+                  <option>...</option>
+                </select>
+              </div>
+              <div class="form-group col-md-2">
+                <label for="inputZip">Zip</label>
+                <input type="text" class="form-control" id="inputZip">
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="gridCheck">
+                <label class="form-check-label" for="gridCheck">
+                  Check me out
+                </label>
+              </div>
+            </div>*@
+              </div>
+            </div>
+
+          </div>
+          <div class="col-lg-6 col-md-12">
+            <input type="hidden" name="TimeZoneId" value="@Model.TimeZoneId" />
+            <div class="card mb-2" id="card-change-timezone" style="">
+              <div class="card-header">
+                Time Zone
+              </div>
+              <div class="card-body">
+                <div class="row no-gutters mb-2">
+                  <div class="col-auto mr-1">
+                    Availability shown in <i><span id="current-timezone"></span></i>
+                  </div>
+                  <div class="col-auto">
+                    | <span id="current-time"></span>
+                  </div>
+                </div>
+                <partial name="_TimeZoneDisplayPartial2" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            Privacy and Visibility Restrictions
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label for="rng-scheduling-privacy-level">Scheduling Privacy Level</label>
+              <input type="range" class="custom-range" min="1" max="3" id="rng-scheduling-privacy-level"
+                     name="SchedulingPrivacyLevel"
+                     value="@Model.SchedulingPrivacyLevel">
+              <div class="row">
+                <div class="col-4">
+                  <span id="rng-choice">Anonymous</span>
+                </div>
+                <div class="col-4 text-center">
+                  <span id="rng-choice">Any Registered</span>
+                </div>
+                <div class="col-4 text-right">
+                  <span id="rng-choice">White-listed</span>
+                </div>
+              </div>
+              <div class="mt-1">
+                <div class="collapse" id="clp-manage-whitelist">
+                  <button type="button" class="btn btn-secondary btn-block" id="btn-manage-whitelist">Manage White-list</button>
+                </div>
+              </div>
+            </div>
+            @* Commenting out until have time to impl *@
+            @*<div class="form-group mb-0">
+              <div class="custom-control custom-switch">
+                <input asp-for="RequireMyConfirmation" class="custom-control-input"
+                       id="switch-req-my-cofirmation" type="checkbox">
+                <label class="custom-control-label" for="switch-req-my-cofirmation">Require My Confirmation</label>
+                <a tabindex="0" role="button" data-toggle="popover"
+                   class="popover-dismiss"
+                   data-trigger="hover"
+                   style="cursor:pointer;"
+                   data-content="If true, appointment requests from clients must be approved before being added to your schedule.">
+                  <span class="feather icon-help-circle text-muted"></span>
+                </a>
+              </div>
+            </div>*@
+          </div>
+        </div>
+        <div>
+          <span asp-validation-for="TimeZoneId" class="text-danger"></span>
+        </div>
+      </form>
+      <div class="modal" id="mdl-manage-whitelist" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Manage White-listed User Emails</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body p-0">
+              <div class="alert alert-success m-3" id="update-whitelist-success-msg" style="display:none;">
+                Successfully updated whitelist!
+              </div>
+              <table id="tbl-whitelist" class="table table-sm table-striped">
+                <thead>
+                  <tr>
+                    <td>Email</td>
+                    <td></td>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+                <tfoot>
+                  <tr>
+                    <td>
+                      <input type="text" placeholder="new_customer@example.com"
+                             id="tb-new-whitelist-entry"
+                             class="form-control" />
+                    </td>
+                    <td class="td-btn">
+                      <button type="button" class="btn btn-primary"
+                              id="btn-whitelist-email">
+                        <span class="fa fa-plus"></span>
+                      </button>
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" id="btn-save-whitelist">
+                <div class="spinner-grow" role="status" style="display:none;">
+                </div>
+                <div class="btn-text"><span class="fa fa-floppy-o"></span> Save</div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+@section Scripts
+  {
+  <partial name="_MomentTimeZonePartial" />
+  <script src="~/assets/plugins/notification/js/bootstrap-growl.min.js"></script>
+  <script src="~/js/appts_common.js"></script>
+  <script src="~/js/appts_tz2.js"></script>
+  <script src="~/js/appts_manage_sp.js"></script>
+}

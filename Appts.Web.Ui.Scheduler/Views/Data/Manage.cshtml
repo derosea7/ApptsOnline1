@@ -1,0 +1,46 @@
+﻿@{
+  ViewData["Title"] = "Manage Data";
+}
+
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <h1>Manage Data</h1>
+      <hr />
+      <a class="d-none" asp-action="DeleteApptsScheduledWithMe" asp-controller="Data"></a>
+      <p>Appts online puts you in control of your data. You can delete your data at any time, however, once it is gone, it is gone.</p>
+      <div class="alert alert-danger">Once data is deleted, it is gone forever.</div>
+      <p>You currently have no data that can be deleted.</p>
+      @*<a href="#" id="a-delete-appts-scheduled-w-me">Delete appointments scheduled with me</a>*@
+    </div>
+  </div>
+</div>
+<div class="modal" id="mdl-confirm-delete" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Are you sure: Delete this data?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Press Delete to confrim.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary f-16" data-dismiss="modal"><span class="mdi mdi-arrow-left f-20"></span> Cancel</button>
+        <form method="post" id="frm-cofirm-delete">
+          <button type="submit" class="btn btn-primary f-16" id="btn-confirm-delete">
+            <div class="spinner-grow" role="status" style="display:none;">
+            </div>
+            <div class="btn-text"><span class="mdi mdi-trash-can-outline f-20"></span> Delete</div>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+@section Scripts
+{
+  <script src="~/js/appts_manage_data.js"></script>
+} 

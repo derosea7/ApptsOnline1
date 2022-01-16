@@ -1,0 +1,58 @@
+﻿@model Appts.Models.View.ServiceProviderProfileViewModel
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+@{
+  var isApptsAdmin = (await AuthorizationService.AuthorizeAsync(User, "ApptsAdmin")).Succeeded;
+}
+@{
+  ViewData["Title"] = "Profile - Svc Provider";
+  ViewData["HelpAction"] = "ServiceProvider";
+  ViewData["HelpFragment"] = "Profile";
+}
+@if (isApptsAdmin)
+{
+<div class="card">
+  <div class="card-header">
+    User Claims
+  </div>
+  <div class="card-body">
+
+    @if (User.Identity.IsAuthenticated)
+    {
+      <p>Claims</p>
+      @foreach (var claim in User.Claims)
+      {
+        <div><span class="text-muted">@claim.Type</span>: @claim.Value</div>
+      }
+    }
+  </div>
+</div>
+}
+@if (Model.FoundSp)
+{
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">Service Provider</div>
+        <table class="table table-hove">
+          <thead>
+            <tr>
+              <th>First</th>
+              <th>Last</th>
+              <th>Email</th>
+              <th>Vanity Url</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>@Model.SpFName</td>
+              <td>@Model.SpLName</td>
+              <td>@Model.SpEmail</td>
+              <td>@Model.SpVanityUrl</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+}

@@ -1,0 +1,16 @@
+title Paying for Subscription
+
+participant Customer
+participant Ui
+participant WebhookApi
+participant Stripe
+database cosmos
+
+
+Customer->Ui:pay for subscription
+Ui->cosmos:using userId,\nsearch for existing\ncustomer object\n\nif not exists,\ncreate customer object\nand save in db with userId
+Ui->Ui:create session\nwith customer id
+Ui->Stripe:forward to payment page
+WebhookApi<-Stripe:checkout completed\nwith customer id
+WebhookApi->cosmos:fulfill purchase\n\nlookup userId\nby customer id
+WebhookApi->cosmos:update subscription dates

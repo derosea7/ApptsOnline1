@@ -1,0 +1,80 @@
+﻿@{
+  ViewData["Title"] = "Dashboard";
+}
+@section MetaContent
+  {
+  <link href="~/assets/fonts/material/css/materialdesignicons.min.css" rel="stylesheet" />
+}
+
+<style>
+  .btn_col {
+    margin: 0 !important;
+  }
+
+    .btn_col > i {
+      margin-right: 0 !important;
+    }
+
+  .card .card-footer {
+    padding: 0.375rem !important;
+  }
+
+  .card .card-block, .card .card-body {
+    padding: 0.375rem !important;
+  }
+</style>
+
+<!-- [ Main Content ] start -->
+<div class="pcoded-main-container">
+  <div class="pcoded-wrapper">
+    <div class="pcoded-content pt-2 pt-sm-3 pt-lg-0">
+      <div class="pcoded-inner-content">
+        <!-- [ breadcrumb ] start -->
+        <!-- [ breadcrumb ] end -->
+        <div class="main-body">
+          <div class="page-wrapper">
+            <!-- [ Main Content ] start -->
+
+            show recent appointments and stuff or whatnot
+
+            <!-- [ Main Content ] end -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- [ Main Content ] end -->
+
+<div class="modal" id="mdl-confirm-delete" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Are you sure: Delete Availability Period?</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Press Delete to confrim.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary f-16" data-dismiss="modal"><span class="mdi mdi-arrow-left f-20"></span> Cancel</button>
+        <form method="post" id="frm-confirm-delete">
+          <button type="submit" class="btn btn-primary f-16" id="btn-confirm-delete">
+            <div class="spinner-grow" role="status" style="display:none;">
+            </div>
+            <div class="btn-text"><span class="mdi mdi-trash-can-outline f-20"></span> Delete</div>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts
+  {
+  <partial name="_MomentTimeZonePartial" />
+  <script src="~/js/appts_manage_periods.js"></script>
+
+}

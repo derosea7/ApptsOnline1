@@ -1,0 +1,169 @@
+﻿@using Appts.Models.Document;
+@model List<AppointmentType>
+@{
+  ViewData["Title"] = "Appointment Types";
+}
+@section MetaContent
+  {
+  <link href="~/assets/fonts/material/css/materialdesignicons.min.css" rel="stylesheet" />
+  <link href="../assets/plugins/notification/css/notification.min.css" rel="stylesheet">
+}
+<style>
+  .btn_col {
+    margin: 0 !important;
+  }
+.btn_col > i {
+      margin-right: 0 !important;
+    }
+</style>
+@if (Context.Request.Query["d"] == "t")
+{
+  <input type="hidden" id="qs-deleted-type" value="t" />
+}
+@if (Context.Request.Query["c"] == "t")
+{
+  <input type="hidden" id="qs-added-type" value="t" />
+}
+@if (Context.Request.Query["u"] == "t")
+{
+  <input type="hidden" id="qs-updated-type" value="t" />
+}
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <h3>Appointment Types</h3>
+      <a asp-controller="AppointmentType" asp-action="Add" class="btn btn-primary mb-2"><i class="mdi mdi-plus"></i> New Appointment Type</a>
+      <hr class="hr-cmd-btn-bar" />
+      @if (Model.Count > 0)
+      {
+        <div class="row">
+          @foreach (var a in Model)
+          {
+            <div class="col-12 col-md-6">
+              <div class="card crd-appt-types mb-2" id="@a.Id">
+                <h5 class="card-header">@a.Name</h5>
+                <div class="card-body">
+                  @if (!string.IsNullOrEmpty(a.Description))
+                  {
+                    <p>@a.Description</p>
+                  }
+                  <h5 class="card-title">@a.ToFormattedDurationString()</h5>
+                  <a href="#" class="btn btn-primary btn_details">
+                    <div class="loading-details" style="display:none;">
+                      <span class="spinner-grow spinner-grow-sm" role="status"></span>
+                      Loading...
+                    </div>
+                    <div class="details-btn-text">Details</div>
+                  </a>
+                  <a asp-action="Edit" asp-route-id="@a.Id" class="btn btn-secondary">Edit</a>
+                  <a href="#" class="card-link text-warning btn_delete">Delete</a>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+        <a asp-action="Detail" id="a-uri-delete-appt-type" style="display:none;"></a>
+        <div class="modal" id="mdl-confirm-delete" tabindex="-1" role="dialog">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Are you sure: Delete Appointment Type?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                Press Delete to confrim.
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary f-16" data-dismiss="modal"><span class="mdi mdi-arrow-left f-20"></span> Cancel</button>
+                <form method="post" id="frm-cofirm-delete">
+                  <button type="submit" class="btn btn-primary f-16" id="btn-confirm-delete">
+                    <div class="spinner-grow" role="status" style="display:none;">
+                    </div>
+                    <div class="btn-text"><span class="mdi mdi-trash-can-outline f-20"></span> Delete</div>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal" id="mdl-details" tabindex="-1" role="dialog">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body p-0">
+                <table class="table table-hover table-tight">
+                  <tr>
+                    <td>Description</td>
+                    <td id="td-appt-type-description"></td>
+                  </tr>
+                  <tr>
+                    <td>Duration</td>
+                    <td id="td-appt-type-duration"></td>
+                  </tr>
+                  <tr>
+                    <td>Location</td>
+                    <td id="td-appt-type-location"></td>
+                  </tr>
+                  <tr>
+                    <td>Location Details</td>
+                    <td id="td-appt-type-location-details"></td>
+                  </tr>
+                  <tr>
+                    <td>Buffer Before</td>
+                    <td id="td-appt-type-buffer-before"></td>
+                  </tr>
+                  <tr>
+                    <td>Buffer After</td>
+                    <td id="td-appt-type-buffer-after"></td>
+                  </tr>
+                  <tr>
+                    <td>Minimum Notice</td>
+                    <td id="td-appt-type-min-notice"></td>
+                  </tr>
+                  <tr>
+                    <td>Maximum Notice</td>
+                    <td id="td-appt-type-max-notice"></td>
+                  </tr>
+                  <tr>
+                    <td>Reschedule Notice</td>
+                    <td id="td-appt-type-reschedule-notice"></td>
+                  </tr>
+                  <tr>
+                    <td>Cancelation Notice</td>
+                    <td id="td-appt-type-cancelation-notice"></td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+      else
+      {
+        <div class="row" id="no-content-hint">
+          <div class="col-12 text-center">
+            <i class="mdi mdi-beaker" style="font-size:75px;color:#ababab;"></i>
+            <h4>No appointment types to display</h4>
+            <p>Add an appointment type that clients can schedule appointments for.</p>
+            <div>
+              <a asp-controller="AppointmentType" asp-action="Add" class="btn btn-primary mb-2"><i class="mdi mdi-plus"></i> New Appointment Type</a>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+@section Scripts
+  {
+  <partial name="_MomentTimeZonePartial" />
+  <script src="../assets/plugins/notification/js/bootstrap-growl.min.js"></script>
+  <script src="~/js/appts_manage_appt_type.js"></script>
+}

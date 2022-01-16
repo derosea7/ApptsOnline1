@@ -1,0 +1,43 @@
+﻿@{
+  ViewData["Title"] = "Preferences";
+}
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <h1>Preferences</h1>
+      <hr />
+      @*<div class="form-group">
+        <div class="custom-control custom-switch">
+          <input type="checkbox" class="custom-control-input" id="cbDarkMode" disabled checked="">
+          <label class="custom-control-label" for="cbDarkMode">Dark mode</label>
+        </div>
+        <small class="text-muted">
+          Browser color theme preference may override this setting.
+        </small>
+      </div>
+      <div class="form-group">
+        <label for="customRange1">Example range</label>
+        <input type="range" class="custom-range" id="customRange1">
+      </div>*@
+
+
+      <div class="card text-center" style="width: 18rem;">
+        <div class="card-header">
+          Site Themes
+        </div>
+        <ul id="ul-theme-selections" class="list-group list-group-flush">
+          <li class="list-group-item" data-theme="tight-white"><small class="text-muted">Light </small><btn class="btn btn-secondary btn-block update-theme">Tight whtie</btn></li>
+          <li class="list-group-item" data-theme="materia"><small class="text-muted">Light </small><btn class="btn btn-secondary btn-block update-theme">Materia</btn></li>
+          <li class="list-group-item" data-theme="dark-standard"><small class="text-muted">Dark </small><btn class="btn btn-secondary btn-block update-theme">Dark</btn></li>
+          <li class="list-group-item" data-theme="darkly"><small class="text-muted">Dark </small><btn class="btn btn-secondary btn-block update-theme">Darkly</btn></li>
+        </ul>
+      </div>
+
+
+    </div>
+  </div>
+</div>
+@section Scripts
+{
+  <script src="~/js/appts_site_prefs.js"></script>
+}

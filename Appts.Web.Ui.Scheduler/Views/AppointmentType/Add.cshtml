@@ -1,0 +1,390 @@
+﻿@model Appts.Models.View.AddAppointmentTypeViewModel
+@{
+  string pageTitle = "";
+  string formAction = "";
+  string pageHeader = "";
+  if (Model != null && Model.IsEditScenario)
+  {
+    formAction = "Edit";
+    pageTitle = "Edit Appt Type";
+    pageHeader = "Edit Appointment Type";
+  }
+  else
+  {
+    formAction = "Add";
+    pageTitle = "Add Appt Type";
+    pageHeader = "Add an Appointment Type";
+  }
+}
+@{
+  ViewData["Title"] = pageTitle;
+}
+@section MetaContent
+  {
+  <link href="~/assets/fonts/material/css/materialdesignicons.min.css" rel="stylesheet" />
+}
+<style>
+  .appts-custom-input {
+    display: none;
+  }
+</style>
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <h3>@pageHeader</h3>
+      <form method="post" asp-action="@formAction">
+        <input type="hidden" name="Duration" />
+        <button type="submit" class="btn btn-primary btn-sm"><i class="feather-save"></i>&nbsp;Save</button>
+        <hr class="hr-cmd-btn-bar" />
+        <div asp-validation-summary="All" class="text-danger"></div>
+        <div class="card mb-2">
+          <div class="card-header">
+            <i class="mdi mdi-calendar-text"></i> General
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-12">
+                <div class="form-group">
+                  <div class="custom-control custom-switch">
+                    @if (Model != null && Model.IsEditScenario)
+                    {
+                      <input asp-for="IsActive" class="custom-control-input"
+                             id="switch-is-active" type="checkbox">
+                    }
+                    else
+                    {
+                      <input name="IsActive" class="custom-control-input"
+                             id="switch-is-active" type="checkbox" checked="checked" value="true">
+                    }
+                    <label class="custom-control-label" for="switch-is-active">Active</label>
+                    <a tabindex="0" role="button" data-toggle="popover"
+                       class="popover-dismiss"
+                       data-trigger="hover"
+                       style="cursor:pointer;"
+                       data-content="Active this Appointment Type to display it publically.">
+                      <i class="feather-help-circle text-muted"></i>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label asp-for="Name"></label> <span class="text-danger">*</span>
+                  <input asp-for="Name" class="form-control" placeholder="30 Minute Consultation" />
+                  <span class="form-text text-muted">
+                    Required
+                  </span>
+                  <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label asp-for="Description"></label>
+                  <textarea asp-for="Description" rows="2" class="form-control" placeholder="Optional"></textarea>
+                  <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label>Duration <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text">Hours</span>
+                    </div>
+                    <input asp-for="DurationHours" type="number" class="form-control">
+                    <div class="input-group-append">
+                      <span class="input-group-text">Mins</span>
+                    </div>
+                    <input asp-for="DurationMinutes" type="number" class="form-control">
+                  </div>
+                  <span class="form-text text-muted">
+                    Required
+                  </span>
+                  <span asp-validation-for="DurationHours" class="text-danger"></span>
+                  <span asp-validation-for="DurationMinutes" class="text-danger"></span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="ddl-location">Location</label>
+                  <select id="ddl-location" asp-for="Location" class="form-control">
+                    <option value="-1">No designated location</option>
+                    <option value="web_conference">Web conference</option>
+                    <option value="we_call">We will call the customer</option>
+                    <option value="customer_calls">Customer will call us</option>
+                    <option value="we_specify">We will specify the meeting location</option>
+                    <option value="customer_specifies">Customer will specifiy the meeting location</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="row" id="rw-location-additional-info" style="display:none;">
+              <div class="col-12 d-none" id="cl-loc-web-conf">
+                <div class="form-group">
+                  <label for="tbLoc_WebConferenceAddress">Web Conference Address</label>
+                  <input type="text" id="tbLoc_WebConferenceAddress" class="form-control" asp-for="LocationDetails_WebConf" />
+                  <span class="form-text text-muted">
+                    URL and/or phone # for web conferencing.
+                  </span>
+                </div>
+              </div>
+              <div class="col-12 d-none" id="cl-loc-we-call">
+                <div class="form-group">
+                  <div class="alert alert-info">
+                    Client will be prompted to provide a phone number that you can then call them at when the appointment comes.
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 d-none" id="cl-loc-customer-calls">
+                <div class="form-group">
+                  <label for="tbLoc_PhoneNumberForCustomerToCall">Phone Number</label>
+                  <input type="text" id="tbLoc_PhoneNumberForCustomerToCall" class="form-control" asp-for="LocationDetails_CustomerCalls" />
+                  <span class="form-text text-muted">
+                    Phone # that customer can call.
+                  </span>
+                </div>
+              </div>
+              <div class="col-12 d-none" id="cl-loc-we-specify">
+                <div class="form-group">
+                  <label for="tbLoc_SpecifiedLocation">Appointment Location</label>
+                  <textarea rows="3" type="text" id="tbLoc_SpecifiedLocation" class="form-control" asp-for="LocationDetails_WeSpecify"></textarea>
+                </div>
+              </div>
+              <div class="col-12 d-none" id="cl-loc-customer-specifies">
+                <div class="form-group">
+                  <div class="alert alert-info">
+                    Client will be prompted to provide a meeting location when they're scheudling apponintment.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card mb-2">
+          <div class="card-header">
+            <a href="#clps-buffer" data-toggle="collapse"><span class="mdi mdi-buffer"></span>&nbsp;Buffer</a>
+          </div>
+          <div class="collapse" id="clps-buffer">
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Buffer Before</label>
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">Hours</span>
+                      </div>
+                      <input asp-for="BufferBeforeHours" type="number" class="form-control">
+                      <div class="input-group-append">
+                        <span class="input-group-text">Mins</span>
+                      </div>
+                      <input asp-for="BufferBeforeMinutes" type="number" class="form-control">
+                    </div>
+                    <span class="form-text text-muted">
+                      Prep time before appointment.
+                    </span>
+                    <span asp-validation-for="BufferBeforeHours" class="text-danger"></span>
+                    <span asp-validation-for="BufferBeforeMinutes" class="text-danger"></span>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Buffer After</label>
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">Hours</span>
+                      </div>
+                      <input asp-for="BufferAfterHours" type="number" class="form-control">
+                      <div class="input-group-append">
+                        <span class="input-group-text">Mins</span>
+                      </div>
+                      <input asp-for="BufferAfterMinutes" type="number" class="form-control">
+                    </div>
+                    <span class="form-text text-muted">
+                      Time required after appointment, before next appointment can be begin.
+                    </span>
+                    <span asp-validation-for="BufferAfterHours" class="text-danger"></span>
+                    <span asp-validation-for="BufferAfterHours" class="text-danger"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <a href="#clps-terms" data-toggle="collapse"><span class="feather-shield"></span>&nbsp;Terms</a>
+          </div>
+          <div class="collapse" id="clps-terms">
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Cancelation Notice</label>
+                    <select id="ddl-cancelation-notice" class="form-control mb-1">
+                      <option value="0">At any time</option>
+                      <option value="3600">1 hour</option>
+                      <option value="7200">2 hours</option>
+                      <option value="14400">4 hours</option>
+                      <option value="28800">8 hours</option>
+                      <option value="86400">1 day</option>
+                      <option value="172800">2 days</option>
+                      <option value="259200">3 days</option>
+                      <option value="604800">7 days</option>
+                      <option value="">Custom...</option>
+                    </select>
+                    <div class="input-group appts-custom-input" id="ig-cancelation-notice">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">Days</span>
+                      </div>
+                      <input asp-for="CancelationNoticeDays" type="number" class="form-control">
+                      <div class="input-group-append">
+                        <span class="input-group-text">Hours</span>
+                      </div>
+                      <input asp-for="CancelationNoticeHours" type="number" class="form-control">
+                      <div class="input-group-append">
+                        <span class="input-group-text">Mins</span>
+                      </div>
+                      <input asp-for="CancelationNoticeMinutes" type="number" class="form-control">
+                    </div>
+                    <span class="form-text text-muted">
+                      Heads-up time for cancelations.
+                    </span>
+                    <span asp-validation-for="CancelationNoticeDays" class="text-danger"></span>
+                    <span asp-validation-for="CancelationNoticeHours" class="text-danger"></span>
+                    <span asp-validation-for="CancelationNoticeMinutes" class="text-danger"></span>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Reschedule Notice</label>
+                    <select id="ddl-reschedule-notice" class="form-control mb-1">
+                      <option value="0">At any time</option>
+                      <option value="3600">1 hour</option>
+                      <option value="7200">2 hours</option>
+                      <option value="14400">4 hours</option>
+                      <option value="28800">8 hours</option>
+                      <option value="86400">1 day</option>
+                      <option value="172800">2 days</option>
+                      <option value="259200">3 days</option>
+                      <option value="604800">7 days</option>
+                      <option value="">Custom...</option>
+                    </select>
+                    <div class="input-group appts-custom-input" id="ig-reschedule-notice">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">Days</span>
+                      </div>
+                      <input asp-for="RescheduleNoticeDays" type="number" class="form-control">
+                      <div class="input-group-append">
+                        <span class="input-group-text">Hours</span>
+                      </div>
+                      <input asp-for="RescheduleNoticeHours" type="number" class="form-control">
+                      <div class="input-group-append">
+                        <span class="input-group-text">Mins</span>
+                      </div>
+                      <input asp-for="RescheduleNoticeMinutes" type="number" class="form-control">
+                    </div>
+                    <span class="form-text text-muted">
+                      Heads-up time for rescheduling.
+                    </span>
+                    <span asp-validation-for="RescheduleNoticeDays" class="text-danger"></span>
+                    <span asp-validation-for="RescheduleNoticeHours" class="text-danger"></span>
+                    <span asp-validation-for="RescheduleNoticeMinutes" class="text-danger"></span>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Minimum Notice</label>
+                    <select id="ddl-minimum-notice" class="form-control mb-1">
+                      <option value="0">At any time</option>
+                      <option value="3600">1 hour</option>
+                      <option value="7200">2 hours</option>
+                      <option value="14400">4 hours</option>
+                      <option value="28800">8 hours</option>
+                      <option value="86400">1 day</option>
+                      <option value="172800">2 days</option>
+                      <option value="259200">3 days</option>
+                      <option value="604800">7 days</option>
+                      <option value="">Custom...</option>
+                    </select>
+                    <div class="input-group appts-custom-input" id="ig-minimum-notice">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">Days</span>
+                      </div>
+                      <input asp-for="MinimumNoticeDays" type="number" class="form-control">
+                      <div class="input-group-append">
+                        <span class="input-group-text">Hours</span>
+                      </div>
+                      <input asp-for="MinimumNoticeHours" type="number" class="form-control">
+                      <div class="input-group-append">
+                        <span class="input-group-text">Mins</span>
+                      </div>
+                      <input asp-for="MinimumNoticeMinutes" type="number" class="form-control">
+                    </div>
+                    <span class="form-text text-muted">
+                      Advanced noticed required for clients to schedule.
+                    </span>
+                    <span asp-validation-for="MinimumNoticeDays" class="text-danger"></span>
+                    <span asp-validation-for="MinimumNoticeHours" class="text-danger"></span>
+                    <span asp-validation-for="MinimumNoticeMinutes" class="text-danger"></span>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Maximum Notice</label>
+                    <select id="ddl-maximum-notice" class="form-control mb-1">
+                      <option value="0">At any time</option>
+                      <option value="3600">1 hour</option>
+                      <option value="7200">2 hours</option>
+                      <option value="14400">4 hours</option>
+                      <option value="28800">8 hours</option>
+                      <option value="86400">1 day</option>
+                      <option value="172800">2 days</option>
+                      <option value="259200">3 days</option>
+                      <option value="604800">7 days</option>
+                      <option value="7776000">90 days</option>
+                      <option value="">Custom...</option>
+                    </select>
+                    <div class="input-group appts-custom-input" id="ig-maximum-notice">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">Days</span>
+                      </div>
+                      @*<input asp-for="MaximumNoticeDays" type="number" class="form-control" value="90">*@
+                      <input asp-for="MaximumNoticeDays" type="number" class="form-control">
+                      <div class="input-group-append">
+                        <span class="input-group-text">Hours</span>
+                      </div>
+                      <input asp-for="MaximumNoticeHours" type="number" class="form-control">
+                      <div class="input-group-append">
+                        <span class="input-group-text">Mins</span>
+                      </div>
+                      <input asp-for="MaximumNoticeMinutes" type="number" class="form-control">
+                    </div>
+                    <span class="form-text text-muted">
+                      How far in the future a client can schedule appointments. 1 year is max.
+                    </span>
+                    <span asp-validation-for="MaximumNoticeDays" class="text-danger"></span>
+                    <span asp-validation-for="MaximumNoticeHours" class="text-danger"></span>
+                    <span asp-validation-for="MaximumNoticeMinutes" class="text-danger"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div><!-- / end of terms card -->
+      </form>
+    </div>
+  </div>
+</div>
+@section Scripts
+  {
+  <partial name="_ValidationScriptsPartial.cshtml" />
+  <partial name="_MomentTimeZonePartial" />
+  <script src="~/js/appts_add_appt_type.js"></script>
+}

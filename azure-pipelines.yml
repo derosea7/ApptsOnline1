@@ -1,0 +1,57 @@
+# Starter pipeline
+
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+  branches:
+    include:
+    - master
+
+variables:
+  buildConfig: 'Release'
+  imageName: 'apptswebuischeduler'
+  acrName: 'crappts'
+  acrHostName: 'crappts.azurecr.io'
+
+stages:
+
+- stage: BuildAndDeploy
+  jobs:
+  - job: BuildAndDeploy
+    pool:
+      vmImage: 'ubuntu-latest'
+
+    steps:
+    - script: echo Hello, world! $(imageName)
+      displayName: 'Run a one-line script'
+
+    - script: |
+        echo Add other tasks to build, test, and deploy your project.
+        echo See https://aka.ms/yaml
+      displayName: 'Run a multi-line script'
+      
+    - task: DotNetCoreCLI@2
+      displayName: 'dotnet restore'
+      inputs:
+       command: restore
+       projects: '**/Appts.Web.Ui.Scheduler/*.csproj'
+    - task: DotNetCoreCLI@2
+      displayName: 'dotnet build'
+      inputs:
+       command: build
+       projects: '**/Appts.Web.Ui.Scheduler/*.csproj'
+       arguments: '--configuration $(buildConfig)'
+    - script: |
+        cd $(Build.SourcesDirectory)/Appts.Web.Ui.Scheduler
+        ls $(Build.SourcesDirectory)/Appts.Web.Ui.Scheduler
+    - task: Docker@1
+      displayName: 'Build container image'
+      inputs:
+        azureSubscriptionEndpoint: 'Pay-As-You-Go (3344e437-7f8c-4932-8eff-76dd4c321b70)'
+        azureContainerRegistry: 'crappts.azurecr.io'
+        imageName: '$(imageName):$(Build.BuildId)'
+        useDefaultContext: false
+        buildContext: '$(System.DefaultWorkingDirectory)/Appts.Web.Ui.Scheduler'
+        dockerFile: '$(Build.SourcesDirectory)/Appts.Web.Ui.Scheduler/Dockerfile'

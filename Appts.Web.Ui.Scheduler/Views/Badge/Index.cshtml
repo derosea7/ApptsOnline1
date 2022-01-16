@@ -1,0 +1,34 @@
+﻿@{ 
+  ViewData["Title"] = "My badges";
+}
+@section MetaContent
+{
+<style>
+  .appt-badge {
+    
+  }
+  .appt-badge-clickable {
+    cursor: pointer;
+
+  }
+  .appt-badge-clickable:hover {
+    background-color: white;
+  }
+</style>
+} 
+<h1>My badges</h1>
+
+<span class="badge badge-pill badge-light appt-badge appt-badge-clickable">
+  <img src="~/images/badges/awareex.PNG" class="avatar" height="30" width="30" style="max-height:30px;max-width:30px;" /> Schedule with the World
+</span>
+<span class="badge badge-pill badge-light appt-badge appt-badge-clickable">
+  <img src="~/images/badges/badgeex.PNG" class="avatar" height="30" width="30" style="max-height:30px;max-width:30px;" /> Schedule with the World
+</span>
+<span class="badge badge-pill badge-light appt-badge appt-badge-clickable">
+  <img src="~/images/badges/medalex.PNG" class="avatar" height="30" width="30" style="max-height:30px;max-width:30px;" /> Schedule with the World
+</span>
+
+@section Scripts
+{
+  <script src="~/js/appts_badges.js"></script>
+} 

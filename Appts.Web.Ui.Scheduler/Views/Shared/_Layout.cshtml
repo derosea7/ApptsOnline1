@@ -1,0 +1,227 @@
+﻿@inject Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet JavaScriptSnippet
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+@{
+  var isSubscriber = (await AuthorizationService.AuthorizeAsync(User, "PaidSubscriber")).Succeeded;
+}
+<!DOCTYPE html>
+<html>
+<head>
+  <environment exclude="Development">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-151420839-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { dataLayer.push(arguments); }
+      gtag('js', new Date());
+      gtag('config', 'UA-151420839-1');
+    </script>
+    <script>
+      window.ga = window.ga || function () { (ga.q = ga.q || []).push(arguments) }; ga.l = +new Date;
+      ga('create', 'UA-151420839-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+  <script async src='https://www.google-analytics.com/analytics.js'></script>
+  </environment>
+  <script type="text/javascript">
+    (function (w, d, v3) {
+      w.chaportConfig = {
+        appId: '603eeba976044d0d8eacdd0a'
+      };
+      if (w.chaport) return; v3 = w.chaport = {}; v3._q = []; v3._l = {}; v3.q = function () { v3._q.push(arguments) }; v3.on = function (e, fn) { if (!v3._l[e]) v3._l[e] = []; v3._l[e].push(fn) }; var s = d.createElement('script'); s.type = 'text/javascript'; s.async = true; s.src = 'https://app.chaport.com/javascripts/insert.js'; var ss = d.getElementsByTagName('script')[0]; ss.parentNode.insertBefore(s, ss)
+    })(window, document);
+  </script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>@ViewData["Title"] - Appts</title>
+  <link rel="shortcut icon" type="image/png" href="https://saapptscdn.blob.core.windows.net/files/appts/imgs/favicons/favicon.ico" />
+  @{
+    switch (Context.Request.Cookies["theme"])
+    {
+      case "tight-white":
+        <link href="~/lib/bootswatch/custombs/bootstrap.css" rel="stylesheet" />
+        break;
+      case "darkly":
+        <link href="~/lib/bootswatch/darkly/bootstrap.min.css" rel="stylesheet" />
+        break;
+      case "dark-standard":
+        <link href="~/css/bootstrap-dark.css" rel="stylesheet" />
+        break;
+      case "materia":
+        <link href="~/lib/bootswatch/materia/bootstrap.min.css" rel="stylesheet" />
+        break;
+      default:
+        <link href="~/lib/bootswatch/custombs/bootstrap.css" rel="stylesheet" />
+        break;
+    }
+  }
+  @*<link href="~/assets/fonts/feather/css/feather.css" rel="stylesheet" />*@
+  <link href="https://saapptscdn.blob.core.windows.net/files/appts/css/icons/feather/feather.css" rel="stylesheet" />
+  <environment include="Development">
+
+  </environment>
+  <environment exclude="Development">
+
+  </environment>
+  @RenderSection("MetaContent", false)
+  <link rel="stylesheet" href="~/css/site.css" />
+  @Html.Raw(JavaScriptSnippet.FullScript)
+</head>
+<body>
+  <nav class="navbar navbar-expand-md navbar-light bg-light mb-1">
+    @if (User.Identity.IsAuthenticated)
+    {
+      <a asp-controller="Dashboard" asp-action="Index" class="navbar-brand">
+        <img data-src="https://cdnappts3.azureedge.net/files/appts/imgs/appts-brand-logo-A-40x37-v3.png" width="30" height="30" class="lazyload d-inline-block align-top" alt="">
+        &nbsp;Appts
+      </a>
+    }
+    else
+    {
+      <a asp-controller="Home" asp-action="Index" class="navbar-brand">
+        <img data-src="https://cdnappts3.azureedge.net/files/appts/imgs/appts-brand-logo-A-40x37-v3.png" width="30" height="30" class="lazyload d-inline-block align-top" alt="">
+        &nbsp;Appts
+      </a>
+    }
+    <button class="navbar-toggler" type="button" data-target="#navbarColor02" data-toggle="collapse">
+      <span class="feather-menu"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarColor02">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="nav-link" asp-area="" asp-controller="Home" asp-action="About">About</a>
+        </li>
+        @if (!User.Identity.IsAuthenticated)
+        {
+          <li class="nav-item">
+            <a asp-controller="Account" asp-action="TryFree" class="nav-link">Try Free</a>
+          </li>
+        }
+        @if (!isSubscriber)
+        {
+          <li class="nav-item">
+            <a class="nav-link" href="https://www.patreon.com/appts"><i class="feather-gift"></i> Patreon</a>
+          </li>
+        }
+      </ul>
+      <ul class="navbar-nav navbar-right" id="navbar-group-service-provider-links">
+        @if (isSubscriber)
+        {
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbar-dd-clients" role="button" data-toggle="dropdown">
+              <i class="feather-users"></i> Clients
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbar-dd-calendar">
+              <a asp-controller="Client" asp-action="Index" class="dropdown-item">Manage</a>
+              @*<a asp-controller="Client" asp-action="Add" class="dropdown-item"><i class="feather-plus"></i> Add</a>*@
+              <a asp-controller="Client" asp-action="Invite" class="dropdown-item"><i class="feather-share-2"></i> Invite</a>
+            </div>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbar-dd-calendar" role="button" data-toggle="dropdown">
+              <i class="feather-inbox"></i> Appts
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbar-dd-calendar">
+              <a asp-controller="Appointment" asp-action="Index" class="dropdown-item">Appointments</a>
+              <a asp-controller="Schedule" asp-action="Calendar" class="dropdown-item">Calendar</a>
+            </div>
+          </li>
+          @*<li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbar-dd-manage" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="feather icon-video"></i> Meetings
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbar-dd-manage">
+              <a asp-controller="V" asp-action="Index" class="dropdown-item"><i class="feather icon-add"></i> Agora Impl 2</a>
+              <a asp-controller="V" asp-action="NewMeeting" class="dropdown-item"><i class="feather icon-add"></i> New Meeting 2</a>
+              <a asp-controller="Video" asp-action="NewMeeting" class="dropdown-item"><i class="feather icon-add"></i> New Meeting</a>
+              <a asp-controller="Video" asp-action="Meeting" class="dropdown-item"><i class="feather icon-tablet"></i> Meetings</a>
+            </div>
+          </li>*@
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbar-dd-manage" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="feather-settings"></i> Services
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbar-dd-manage">
+              <a asp-controller="Availability" asp-action="Index" class="dropdown-item"><i class="feather-clock"></i> Availablility</a>
+              <a asp-controller="AppointmentType" asp-action="Index" class="dropdown-item">Appointment Types</a>
+              <a asp-controller="Calendars" asp-action="Index" class="dropdown-item">Social Calendars</a>
+            </div>
+          </li>
+        }
+        else if (User.Identity.IsAuthenticated)
+        {
+          @*<li class="nav-item">
+            <a asp-controller="Video" asp-action="NewMeeting" class="nav-link"><i class="feather icon-plus"></i>&nbsp;New Meeting</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbar-dd-manage" role="button" data-toggle="dropdown" >
+              <i class="feather icon-settings"></i> Services
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbar-dd-manage">
+              <a asp-controller="V" asp-action="Index" class="dropdown-item"><i class="feather icon-add"></i> Agora Impl 2</a>
+              <a asp-controller="Video" asp-action="NewMeeting" class="dropdown-item"><i class="feather icon-plus"></i>&nbsp;New Meeting</a>
+              <a asp-controller="Video" asp-action="Meeting" class="dropdown-item"><i class="feather icon-plus"></i>&nbsp;Meetings</a>
+              <a asp-controller="Schedule" asp-action="Appointment" class="dropdown-item"><i class="feather icon-plus"></i>&nbsp;Appointment</a>
+              <a asp-controller="Calendars" asp-action="Index" class="dropdown-item">Social Calendars</a>
+            </div>
+          </li>*@
+        }
+        else
+        {
+
+        }
+        <li class="nav-item">
+          @{
+            string helpAction = ViewData["HelpAction"] == null ? "Index" : ViewData["HelpAction"].ToString();
+            string helpFragment = ViewData["HelpFragment"] == null ? "" : ViewData["HelpFragment"].ToString();
+            string host = Context.Request.Host.ToString();
+            string s = $"https://{host}/Help{helpAction}";
+          }
+          <a class="nav-link" asp-controller="Help" asp-action="@helpAction" asp-fragment="@helpFragment"><i class="feather-help-circle"></i></a>
+        </li>
+      </ul>
+      <partial name="_LoginPartialPhoto" />
+    </div>
+  </nav>
+  <partial name="_CookieConsentPartial" />
+  @RenderBody()
+  <div class="container-fluid body-content" id="11content">
+    <footer style="text-align:center;padding-top:50px;">
+      <p style="margin-bottom:0.1rem;color:darkgrey;">&copy; 2021 - Appts Online</p>
+      <i><p style="margin-bottom:0.1rem;color:darkgrey;">Simple, fast and secure online appointment scheduling for individuals and their clients.</p></i>
+      <div class="row ">
+        <div class="col-6" style="text-align:right;">
+          <p style="padding-bottom:0.1rem;">
+            <a asp-controller="Legal" asp-action="Privacy">Privacy</a>
+          </p>
+        </div>
+        <div class="col-6" style="text-align:left;">
+          <p style="padding-bottom:0.1rem;">
+            <a asp-controller="Legal" asp-action="Terms">Terms</a>
+          </p>
+        </div>
+      </div>
+    </footer>
+  </div>
+  <script src="https://cdnappts3.azureedge.net/files/appts/js/lazyload.min.js"></script>
+  <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+          integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+          crossorigin="anonymous">
+  </script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+          integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+          crossorigin="anonymous">
+  </script>
+  <environment include="Development">
+
+  </environment>
+  <environment exclude="Development">
+
+  </environment>
+  <script src="~/js/site.js" asp-append-version="false"></script>
+  <script>
+
+  </script>
+  @RenderSection("Scripts", required: false)
+  </body>
+</html>

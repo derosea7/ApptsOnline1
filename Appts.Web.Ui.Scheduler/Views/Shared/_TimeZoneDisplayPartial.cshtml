@@ -1,0 +1,29 @@
+﻿<div class="card mb-2" id="card-change-timezone" style="">
+  <div class="card-header btn-card-header">
+    
+    <div class="d-flex justify-content-between">
+      <a href="#TimeZonePicker" data-toggle="collapse" class=" align-self-center" id="timezone-header-text">
+        <div class="row no-gutters">
+          <div class="col-auto mr-1">
+        <i class="feather icon-globe"></i>
+            <span class="mdi mdi-earth"></span>&nbsp;Times shown in <i><span id="current-timezone"></span></i>
+          </div>
+          <div class="col-auto">
+            &nbsp;|&nbsp;<span id="current-time"></span>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+  <div class="collapse" id="TimeZonePicker">
+    <div class="card-body">
+      <partial name="_TimeZoneDisplayPartial2" />
+      <div class="" id="refresh-tz-picker-row">
+        <button id="btn-refresh-times-after-timezone-changed" type="button" class="btn btn-info">
+          <span class="spinner-border spinner-border-sm mr-1" role="status" style="display:none;"></span>
+          <span class="feather icon-refresh-cw"></span>&nbsp;&nbsp;Refresh
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

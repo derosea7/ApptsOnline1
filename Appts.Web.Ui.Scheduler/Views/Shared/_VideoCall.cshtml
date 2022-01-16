@@ -1,0 +1,78 @@
+﻿@inject Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet JavaScriptSnippet
+@using Microsoft.AspNetCore.Authorization
+@using Appts.Common.Constants
+@inject IAuthorizationService AuthorizationService
+@{
+  var isSubscriber = (await AuthorizationService.AuthorizeAsync(User, "PaidSubscriber")).Succeeded;
+}
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <!--<script async src="https://www.googletagmanager.com/gtag/js?id=UA-151420839-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'UA-151420839-1');
+  </script>-->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>@ViewData["Title"] - Appts</title>
+  <link rel="shortcut icon" type="image/png" href="~/images/ico/favicon.ico" />
+  @*<link href="https://saapptscdn.blob.core.windows.net/files/appts/css/agora/materialize.min.css" rel="stylesheet" />*@
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  @*<link href="https://saapptscdn.blob.core.windows.net/files/appts/css/agora/common_custom.css" rel="stylesheet" />*@
+  <link href="~/css/common_custom.css" rel="stylesheet" />
+  <link href="~/css/appts_videocall.css" rel="stylesheet" />
+  @RenderSection("MetaContent", false)
+
+  @Html.Raw(JavaScriptSnippet.FullScript)
+</head>
+<body class="agora-theme grey darken-4">
+  @*<div class="navbar-fixed black">
+      <nav class="agora-navbar black">
+        <div class="nav-wrapper valign-wrapper grey-text black">
+          <a href="/Dashboard/Index" class="left-align brand-logo"><img src="https://cdnappts3.azureedge.net/files/appts/imgs/appts-brand-logo-A-40x37-v3.png" width="30" height="30" alt=""> appts online</a>
+        </div>
+      </nav>
+    </div>*@
+  <!-- Dropdown Structure -->
+  <ul id="dropdown1" class="dropdown-content">
+    <li><a asp-controller="Help" asp-action="Index">help</a></li>
+    <li><a asp-controller="Legal" asp-action="Privacy">privacy</a></li>
+    <li><a asp-controller="Legal" asp-action="Privacy">terms</a></li>
+    @*<li><a href="#!">two</a></li>
+    <li class="divider"></li>
+    <li><a href="#!">three</a></li>*@
+  </ul>
+  <nav class="navbar-fixed">
+    <div class="agora-navbar">
+      <div class="nav-wrapper ">
+        <div class="valign-wrapper" style="top: 0px;">
+          <a href="/Dashboard/Index" class="left-align brand-logo" style="top: 0px;"><img src="https://cdnappts3.azureedge.net/files/appts/imgs/appts-brand-logo-A-40x37-v3.png" width="30" height="30" alt=""> appts online</a>
+        </div>
+        <ul class="right">
+          <li></li>
+          <!-- Dropdown Trigger -->
+          <li><a class="waves-effect waves-light btn" id="join"><i class="material-icons left">voice_chat</i> Join</a></li>
+          <li>
+            <a class="dropdown-trigger" href="#!" data-target="dropdown1">
+              <div class="valign-wrapper">
+                <img class="avatar  " height="32" width="32" style="max-height:32px;max-width:32px;" src="https://cdnappts3.azureedge.net/thumbnail-avatars/@User.Claims.First(c => c.Type == IdentityK.NameIdentifier).Value" />
+                <i class="material-icons right" style="margin-left:3px;">arrow_drop_down</i>
+              </div>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <partial name="_CookieConsentPartial" />
+  @RenderBody()
+  <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.3.1.min.js"></script>
+  <script src="https://saapptscdn.blob.core.windows.net/files/appts/lib/materialize.min.js"></script>
+  <script src="https://saapptscdn.blob.core.windows.net/files/appts/lib/AgoraRTCSDK-3.4.0.js"></script>
+  @RenderSection("Scripts", required: false)
+</body>
+</html>

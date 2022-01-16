@@ -1,0 +1,88 @@
+﻿@using Appts.Models.Document.Stocks
+@model Appts.Web.Ui.Scheduler.ViewModels.ViewTransactionsVm
+@{
+  ViewData["Title"] = "transactions";
+}
+<div class="conttainer-fluid">
+  <div class="row">
+    <div class="col-12">
+      <h3>transactions</h3>
+      <div class="row">
+        <div class="col-md-4">
+          <form method="post" asp-controller="Stock" asp-action="SaveTransaction">
+            <div class="card">
+              <div class="card-body">
+                <div class="form-group">
+                  <label for="symbol">stock symbol</label>
+                  <input type="text" asp-for="BindingModel.StockSymbol" id="symbol" class="form-control" value="MRSN" />
+                </div>
+                <div class="form-group">
+                  <label for="sharesbought">shares traded</label>
+                  <input type="text" asp-for="BindingModel.SharesTraded" id="sharesbought" class="form-control" value="1" />
+                </div>
+                <div class="form-group">
+                  <label for="buyprice">buy price</label>
+                  <input type="text" asp-for="BindingModel.BuyPrice" id="buyprice" class="form-control" />
+                </div>
+                <div class="form-group">
+                  <label for="sellprice">sell price</label>
+                  <input type="text" asp-for="BindingModel.SellPrice" id="sellprice" class="form-control" />
+                </div>
+                <div class="form-group">
+                  <label for="brokername">broker name</label>
+                  <input type="text" asp-for="BindingModel.BrokerName" id="brokername" class="form-control" value="Robinhood" />
+                </div>
+                <button type="submit" id="btnaddtransaction" class="btn btn-primary btn-block">add transaction</button>
+              </div>
+              <div class="card-body">
+              </div>
+              <div class="card-body">
+                <p>% profit: <span id="percprofit"></span></p>
+                <p>total profit: <span id="totprofit"></span></p>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="col-md-8 col-sm-12">
+          <table class="table table-sm table-hover">
+            <thead>
+              <tr>
+                <th>symbol</th>
+                <th>% p n l</th>
+                <th>buy price</th>
+                <th>n shares</th>
+                <th>tot buy</th>
+                <th>sell price</th>
+                <th>tot sell</th>
+                <th>tot p n l</th>
+                <th>10k p n l</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach (StockTransactionDocument transaction in Model.Transactions)
+              {
+                <tr id="@transaction.Id">
+                  <td>@transaction.StockSymbol</td>
+                  <td>@transaction.RoiPercent.ToString("P")</td>
+                  <td>@transaction.BuyPricePerShare.ToString("C")</td>
+                  <td>@transaction.SharesTraded</td>
+                  <td>@transaction.BuyTotal.ToString("C")</td>
+                  <td>@transaction.SellPricePerShare.ToString("C")</td>
+                  <td>@transaction.SellTotal.ToString("C")</td>
+                  <td>@transaction.RoiTotal.ToString("C")</td>
+                  <td>@transaction.RoiAt10k.ToString("C")</td>
+                  <td><button type="button" class="btn btn-secondary btn-sm btn-del-transaction">-</button></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+@section Scripts
+{
+  <script src="~/js/appts_stock_transactions.js"></script>
+}

@@ -1,0 +1,68 @@
+﻿@model Appts.Web.Ui.Scheduler.ViewModels.SearchTrendLineChartsVm;
+@using Appts.Models.Document.GoogleSearch;
+@{
+  ViewData["Title"] = "compare search trends";
+}
+@section MetaContent
+{
+  <style>
+    #chartdiv {
+      width: 100%;
+      height: 500px;
+    }
+
+    #chartdiv2 {
+      width: 100%;
+      height: 500px;
+    }
+
+    #chartdiv3 {
+      width: 100%;
+      height: 500px;
+    }
+  </style>
+}
+
+@if (Model.DailyHistoricalJson != null && Model.DailyHistoricalJson.Length > 0)
+{
+
+
+  <div class="container-fluid">
+    <div class="row no-gutters">
+      <div class="col-12">
+        <h5>comapre search trends</h5>
+        <input type="hidden" id="hf-json" value="@Model.SearchTrendsRawJson" />
+        <div id="chartdiv"></div>
+      </div>
+    </div>
+    <div class="row no-gutters">
+      <div class="col-12">
+        <h5>candlesticks</h5>
+        <input type="hidden" id="hf-candlestick-json" value="@Model.DailyHistoricalJson" />
+        <div id="chartdiv3"></div>
+      </div>
+    </div>
+    <div class="row no-gutters">
+      <div class="col-12">
+        <h5>comapre search trends to stock price</h5>
+        <input type="hidden" id="hf-golden-json" value="@Model.TrendsToPricesJson" />
+        <div id="chartdiv2"></div>
+      </div>
+    </div>
+  </div>
+
+}
+
+@section Scripts
+{
+  <script src="//www.amcharts.com/lib/4/core.js"></script>
+  <script src="//www.amcharts.com/lib/4/charts.js"></script>
+  <script src="//www.amcharts.com/lib/4/themes/animated.js"></script>
+  <script src="//www.amcharts.com/lib/4/themes/kelly.js"></script>
+  <script src="~/js/appts_stocks_comp_trends.js"></script>
+  <script>
+    $(document).ready(function () {
+
+    });
+  </script>
+}

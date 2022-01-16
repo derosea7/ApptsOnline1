@@ -1,0 +1,29 @@
+﻿@using Appts.Models.Domain;
+@model Appts.Web.Ui.Scheduler.ViewModels.ManageAccountVm;
+@{
+  ViewData["Title"] = "Manage Account";
+}
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <h1>Manage Account</h1>
+      <hr />
+      @*@if (Model.UserRole == UserRole.Client)
+    {
+      <a asp-action="Settings" asp-controller="Client">Manage profile</a>
+    }
+    else if (Model.UserRole == UserRole.Subscriber)
+    {
+      <a asp-action="Settings" asp-controller="Subscriber">Manage profile</a>
+    }*@
+      <a asp-action="PasswordReset" asp-controller="Account">Reset password</a>
+      <br />
+      @if (Model.UserRole == UserRole.Client)
+      {
+        <a asp-action="TryFree" asp-controller="Account">Become a service provider</a>
+        <br />
+      }
+      <a asp-action="Manage" asp-controller="Data">Manage data</a>
+    </div>
+  </div>
+</div>

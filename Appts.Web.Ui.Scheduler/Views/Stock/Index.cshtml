@@ -1,0 +1,52 @@
+﻿@model Appts.Web.Ui.Scheduler.ViewModels.GetSavedSearchTrendsVm;
+@using Appts.Models.Document.GoogleSearch;
+@{
+  ViewData["Title"] = "Stocks";
+}
+@section MetaContent
+{
+  <style>
+    #chartdiv {
+      width: 100%;
+      height: 500px;
+    }
+  </style>
+} 
+<div class="container-fluid">
+  <div class="row no-gutters">
+    <div class="col-12">
+      <h1>stocks</h1>
+      <a asp-controller="Stock" asp-action="CompoundInterest">compound interest table</a>
+      <br />
+      <a asp-controller="Stock" asp-action="Transactions">transactions</a>
+      <br/>
+      <a asp-controller="Stock" asp-action="CompareSearchTrends">compare search trends</a>
+      <div class="form-group">
+        <label for="tb-tickers-for-news">tickers for news</label>
+        <input type="text" id="tb-tickers-for-news" class="form-control" />
+      </div>
+      <button type="button" id="btn-get-news" class="btn btn-primary">get news</button>
+      @{
+        string cellstyle = "";
+      }
+      <button type="button" id="btn-set-chart">chart</button>
+      @*<input type="hidden" id="hf-json" value="@Model.SearchTrendsJson" />
+      <input type="hidden" id="hf-trends-count" value="@Model.TrendsCount" />*@
+      <h5>stock heatmap</h5>
+      <div id="chartdiv"></div>
+    </div>
+  </div>
+</div>
+@section Scripts
+{
+  <script src="//www.amcharts.com/lib/4/core.js"></script>
+  <script src="//www.amcharts.com/lib/4/charts.js"></script>
+  <script src="//www.amcharts.com/lib/4/themes/animated.js"></script>
+  <script src="//www.amcharts.com/lib/4/themes/kelly.js"></script>
+  <script src="~/js/appts_stocks.js"></script>
+  <script>
+    $(document).ready(function () {
+
+    });
+  </script>
+}

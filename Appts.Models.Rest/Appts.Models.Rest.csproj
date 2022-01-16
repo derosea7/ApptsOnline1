@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Appts.Models.Api\Appts.Models.Api.csproj" />
+    <ProjectReference Include="..\Appts.Models.Document\Appts.Models.Document.csproj" />
+  </ItemGroup>
+
+</Project>
